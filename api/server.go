@@ -1,0 +1,46 @@
+package api
+
+import (
+	"rest/dto"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	cors "github.com/itsjamie/gin-cors"
+)
+
+type Server struct {
+	dbtx   *dto.Queries
+	router *gin.Engine
+}
+
+func NewServer(dbtx *dto.Queries) (*Server, error) {
+	server := &Server{
+		dbtx: dbtx,
+	}
+	router := gin.Default()
+	router.Use(cors.Middleware(cors.Config{
+		Origins:         "*",
+		Methods:         "GET,POST,PUT,DELETE",
+		RequestHeaders:  "Origin,Authorization,Content_Type",
+		ExposedHeaders:  "",
+		MaxAge:          50 * time.Second,
+		Credentials:     false,
+		ValidateHeaders: false,
+	}))
+	//RUTAS SIN MIDDLEWARE
+	router.POST("api/v1/chofer", server.createChofer)
+	router.GET("api/v1/chofer", server.getAll)
+
+	//RUTAS CON MIDDLEWARE
+
+	server.router = router
+	return server, nil
+}
+func (server *Server) Start(url string) error {
+	return server.router.Run(url)
+}
+func errorResponse(err error) gin.H {
+	return gin.H{
+		"error": err.Error(),
+	}
+}
