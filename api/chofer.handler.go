@@ -1,15 +1,27 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 	"rest/dto"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type createChoferRequest struct {
-	Name         string    `json:"nombre"        binding:"required"`
+	Nombre       string    `json:"nombre"        binding:"required"`
+	FechaNac     time.Time `json:"fechaNac"      binding:"required"`
+	Telefono     int32     `json:"telefono"      binding:"required"`
+	Email        string    `json:"email"         binding:"required"`
+	TipoLicencia string    `json:"tipoLicencia"  binding:"required"`
+	Nacionalidad string    `json:"nacionalidad"  binding:"required"`
+}
+
+type updateChoferRequest struct {
+	IdChofer     int32     `json:"idChofer"      binding:"required"`
+	Nombre       string    `json:"nombre"        binding:"required"`
 	FechaNac     time.Time `json:"fechaNac"      binding:"required"`
 	Telefono     int32     `json:"telefono"      binding:"required"`
 	Email        string    `json:"email"         binding:"required"`
@@ -24,7 +36,7 @@ func (server *Server) createChofer(ctx *gin.Context) {
 		return
 	}
 	args := dto.CreateChoferParams{
-		Nombre:       req.Name,
+		Nombre:       req.Nombre,
 		Fechanac:     req.FechaNac,
 		Telefono:     int32(req.Telefono),
 		Email:        req.Email,
@@ -47,4 +59,63 @@ func (server *Server) getAll(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, chofer)
+}
+
+func (server *Server) getChoferById(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	chofer, err := server.dbtx.GetChoferById(ctx, int32(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Chofer no encontrado"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, chofer)
+}
+
+func (server *Server) updateChofer(ctx *gin.Context) {
+	var req updateChoferRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	args := dto.UpdateChoferParams{
+		Nombre:       req.Nombre,
+		Fechanac:     req.FechaNac,
+		Telefono:     req.Telefono,
+		Email:        req.Email,
+		Tipolicencia: req.TipoLicencia,
+		Nacionalidad: req.Nacionalidad,
+		Idchofer:     req.IdChofer,
+	}
+
+	_, err := server.dbtx.UpdateChofer(ctx, args)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "Chofer actualizado correctamente"})
+}
+
+func (server *Server) deleteChofer(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	_, err = server.dbtx.DeleteChofer(ctx, int32(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "Chofer eliminado"})
 }
