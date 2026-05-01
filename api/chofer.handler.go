@@ -52,7 +52,7 @@ func (server *Server) createChofer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"generated_id": lastId})
 }
 
-func (server *Server) getAll(ctx *gin.Context) {
+func (server *Server) getAllChofer(ctx *gin.Context) {
 	chofer, err := server.dbtx.GetAllChofer(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
