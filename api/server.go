@@ -29,10 +29,15 @@ func NewServer(dbtx *dto.Queries) (*Server, error) {
 	}))
 	//RUTAS SIN MIDDLEWARE
 	router.POST("api/v1/chofer", server.createChofer)
-	router.GET("api/v1/chofer", server.getAll)
+	router.GET("api/v1/chofer", server.getAllChofer)
 	router.GET("api/v1/chofer/:id", server.getChoferById)
 	router.PUT("api/v1/chofer", server.updateChofer)
 	router.DELETE("api/v1/chofer/:id", server.deleteChofer)
+	router.POST("api/v1/ubicacion", server.createUbicacion)
+	router.GET("api/v1/ubicacion", server.getAllUbicacion)
+	router.GET("api/v1/ubicacion/:id", server.getUbicacionById)
+	router.PUT("api/v1/ubicacion", server.updateUbicacion)
+	router.DELETE("api/v1/ubicacion/:id", server.deleteUbicacion)
 
 	//RUTAS CON MIDDLEWARE
 
