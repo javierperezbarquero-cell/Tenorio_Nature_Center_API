@@ -94,7 +94,7 @@ CREATE TABLE Vehiculo(
 ) ENGINE=INNODB;
 
 
-CREATE TABLE ClienteEmail(
+CREATE TABLE EmailCliente(
     idEmailCliente INT AUTO_INCREMENT NOT NULL,
     email VARCHAR(45) NOT NULL,
     idCliente INT NOT NULL,

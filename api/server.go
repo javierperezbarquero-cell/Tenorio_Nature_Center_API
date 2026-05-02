@@ -64,6 +64,18 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.POST("api/v1/usuario", server.createUsuario)
 	router.PUT("api/v1/usuario", server.updateUsuario)
 	router.DELETE("api/v1/usuario/:id", server.deleteUsuario)
+	//EmailCliente
+	router.POST("api/v1/emailcliente", server.createEmailCliente)
+	router.GET("api/v1/emailcliente", server.getAllEmailCliente)
+	router.GET("api/v1/emailcliente/:id", server.getEmailClienteById)
+	router.PUT("api/v1/emailcliente", server.updateEmailCliente)
+	router.DELETE("api/v1/emailcliente/:id", server.deleteEmailCliente)
+	//IdiomaGuia
+	router.POST("api/v1/idiomaguia", server.createIdiomaGuia)
+	router.GET("api/v1/idiomaguia", server.getAllIdiomaGuia)
+	router.GET("api/v1/idiomaguia/:id", server.getIdiomaGuiaById)
+	router.PUT("api/v1/idiomaguia", server.updateIdiomaGuia)
+	router.DELETE("api/v1/idiomaguia/:id", server.deleteIdiomaGuia)
 
 	//RUTAS CON MIDDLEWARE
 
