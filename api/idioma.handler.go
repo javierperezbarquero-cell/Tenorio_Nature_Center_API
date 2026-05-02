@@ -19,7 +19,7 @@ type updateIdiomaRequest struct {
 }
 
 // POST: api/v1/idioma
-func (server *Server) CreateIdioma(ctx *gin.Context) {
+func (server *Server) createIdioma(ctx *gin.Context) {
 	var req createIdiomaRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

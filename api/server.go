@@ -66,7 +66,7 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.DELETE("api/v1/usuario/:id", server.deleteUsuario)
 	//Cliente
 	router.POST("api/v1/cliente", server.createCliente)
-	router.GET("api/v1/cliente", server.getAllCliente)
+	router.GET("api/v1/cliente", server.getAllClientes)
 	router.GET("api/v1/cliente/:id", server.getClienteById)
 	router.PUT("api/v1/cliente", server.updateCliente)
 	router.DELETE("api/v1/cliente/:id", server.deleteCliente)

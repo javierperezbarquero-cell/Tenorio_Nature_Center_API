@@ -26,7 +26,7 @@ type updateClienteRequest struct {
 }
 
 // POST: api/v1/cliente
-func (server *Server) CreateCliente(ctx *gin.Context) {
+func (server *Server) createCliente(ctx *gin.Context) {
 	var req createClienteRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

@@ -28,7 +28,7 @@ type updateGuiaRequest struct {
 }
 
 // POST: api/v1/guia
-func (server *Server) CreateGuia(ctx *gin.Context) {
+func (server *Server) createGuia(ctx *gin.Context) {
 	var req createGuiaRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
