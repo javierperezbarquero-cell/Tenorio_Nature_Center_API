@@ -11,8 +11,8 @@ import (
 )
 
 const createUsuario = `-- name: CreateUsuario :execresult
-INSERT INTO usuarios (nombre, apellido, rol, correo, contrasena, descripcion, imagen)
-VALUES (?, ?, ?, ?, ?, ?, ?)
+INSERT INTO usuarios (nombre, apellido, rol, correo, contrasena, descripcion, imagen, fechacreacion, fechaactualizacion)
+VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `
 
 type CreateUsuarioParams struct {
@@ -77,7 +77,8 @@ UPDATE usuarios SET
     correo = ?,
     contrasena = ?,
     descripcion = ?,
-    imagen = ?
+    imagen = ?,
+    fechaactualizacion = NOW()
 WHERE idusuario = ?
 `
 
