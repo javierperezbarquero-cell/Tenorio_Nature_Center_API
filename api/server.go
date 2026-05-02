@@ -64,6 +64,24 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.POST("api/v1/usuario", server.createUsuario)
 	router.PUT("api/v1/usuario", server.updateUsuario)
 	router.DELETE("api/v1/usuario/:id", server.deleteUsuario)
+	//Cliente
+	router.POST("api/v1/cliente", server.createCliente)
+	router.GET("api/v1/cliente", server.getAllClientes)
+	router.GET("api/v1/cliente/:id", server.getClienteById)
+	router.PUT("api/v1/cliente", server.updateCliente)
+	router.DELETE("api/v1/cliente/:id", server.deleteCliente)
+	//Guia
+	router.POST("api/v1/guia", server.createGuia)
+	router.GET("api/v1/guia", server.getAllGuia)
+	router.GET("api/v1/guia/:id", server.getGuiaById)
+	router.PUT("api/v1/guia", server.updateGuia)
+	router.DELETE("api/v1/guia/:id", server.deleteGuia)
+	//Idioma
+	router.POST("api/v1/idioma", server.createIdioma)
+	router.GET("api/v1/idioma", server.getAllIdioma)
+	router.GET("api/v1/idioma/:id", server.getIdiomaById)
+	router.PUT("api/v1/idioma", server.updateIdioma)
+	router.DELETE("api/v1/idioma/:id", server.deleteIdioma)
 	//EmailCliente
 	router.POST("api/v1/emailcliente", server.createEmailCliente)
 	router.GET("api/v1/emailcliente", server.getAllEmailCliente)
