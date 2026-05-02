@@ -2,6 +2,7 @@ package api
 
 import (
 	"rest/dto"
+	"rest/security"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -9,13 +10,19 @@ import (
 )
 
 type Server struct {
-	dbtx   *dto.Queries
-	router *gin.Engine
+	dbtx         *dto.Queries
+	router       *gin.Engine
+	tokenBuilder security.Builder
 }
 
-func NewServer(dbtx *dto.Queries) (*Server, error) {
+func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
+	builder, err := security.NewPasetoBuilder(secret)
+	if err != nil {
+		return nil, err
+	}
 	server := &Server{
-		dbtx: dbtx,
+		dbtx:         dbtx,
+		tokenBuilder: builder,
 	}
 	router := gin.Default()
 	router.Use(cors.Middleware(cors.Config{
