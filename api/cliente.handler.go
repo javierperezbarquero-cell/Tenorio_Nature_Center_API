@@ -88,6 +88,7 @@ func (server *Server) updateCliente(ctx *gin.Context) {
 		Nombre:       req.Nombre,
 		Telefono:     int32(req.Telefono),
 		Nacionalidad: req.Nacionalidad,
+		FechaRegistro: req.FechaRegistro,
 		Idcliente:    req.IdCliente,
 	}
 

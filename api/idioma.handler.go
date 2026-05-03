@@ -25,10 +25,8 @@ func (server *Server) createIdioma(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	/*args := dto.CreateIdiomaParams{
-		Nombre: req.Nombre,
-	}*/
-	idioma, err := server.dbtx.CreateIdioma(ctx, /*args*/req.Nombre)
+
+	idioma, err := server.dbtx.CreateIdioma(ctx, req.Nombre)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
