@@ -55,7 +55,7 @@ func (server *Server) getIdiomaById(ctx *gin.Context) {
 	idioma, err := server.dbtx.GetIdiomaById(ctx, int32(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "Guía no encontrada"})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Idioma no encontrado"})
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -82,7 +82,7 @@ func (server *Server) updateIdioma(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Guía actualizada correctamente"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Idioma actualizado correctamente"})
 }
 
 // DELETE: api/v1/idioma
@@ -98,5 +98,5 @@ func (server *Server) deleteIdioma(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Guía eliminada"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Idioma eliminado"})
 }
