@@ -25,7 +25,6 @@ type updateClienteRequest struct {
 	FechaRegistro time.Time `json:"fechaRegistro" binding:"required"`
 }
 
-// POST: api/v1/cliente
 func (server *Server) createCliente(ctx *gin.Context) {
 	var req createClienteRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -47,7 +46,6 @@ func (server *Server) createCliente(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"generated_id": lastId})
 }
 
-// GET: api/v1/cliente
 func (server *Server) getAllClientes(ctx *gin.Context) {
 	clientes, err := server.dbtx.GetAllCliente(ctx)
 	if err != nil {
@@ -76,7 +74,6 @@ func (server *Server) getClienteById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, cliente)
 }
 
-// PuT: api/v1/cliente
 func (server *Server) updateCliente(ctx *gin.Context) {
 	var req updateClienteRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -85,11 +82,11 @@ func (server *Server) updateCliente(ctx *gin.Context) {
 	}
 
 	args := dto.UpdateClienteParams{
-		Nombre:       req.Nombre,
-		Telefono:     int32(req.Telefono),
-		Nacionalidad: req.Nacionalidad,
+		Nombre:        req.Nombre,
+		Telefono:      int32(req.Telefono),
+		Nacionalidad:  req.Nacionalidad,
 		Fecharegistro: req.FechaRegistro,
-		Idcliente:    req.IdCliente,
+		Idcliente:     req.IdCliente,
 	}
 
 	_, err := server.dbtx.UpdateCliente(ctx, args)
@@ -100,7 +97,6 @@ func (server *Server) updateCliente(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Cliente actualizado correctamente"})
 }
 
-// DELETE: api/v1/cliente
 func (server *Server) deleteCliente(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

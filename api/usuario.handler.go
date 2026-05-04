@@ -3,15 +3,15 @@ package api
 import (
 	"database/sql"
 	"net/http"
-	"time"
 	"rest/dto"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type loginRequest struct {
-	Correo    string `json:"correo" binding:"required"`
+	Correo     string `json:"correo" binding:"required"`
 	Contrasena string `json:"contrasena" binding:"required"`
 }
 
@@ -28,7 +28,6 @@ type payload struct {
 	Imagen      string `json:"imagen"`
 	Descripcion string `json:"descripcion"`
 }
-
 
 type createUsuarioRequest struct {
 	Nombre      string `json:"nombre" binding:"required"`
@@ -50,7 +49,6 @@ type updateUsuarioRequest struct {
 	Descripcion string `json:"descripcion"`
 	Imagen      string `json:"imagen"`
 }
-
 
 func (server *Server) login(ctx *gin.Context) {
 	var req loginRequest
@@ -75,9 +73,9 @@ func (server *Server) login(ctx *gin.Context) {
 	}
 
 	accessToken, err := server.tokenBuilder.CreateToken(
-		user.Rol.String,      // role
-		user.Nombre,          // name
-		user.Imagen.String,   // image
+		user.Rol.String,
+		user.Nombre,
+		user.Imagen.String,
 		time.Minute*5,
 	)
 	if err != nil {
@@ -99,7 +97,6 @@ func (server *Server) login(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, resp)
 }
-
 
 func (server *Server) createUsuario(ctx *gin.Context) {
 	var req createUsuarioRequest

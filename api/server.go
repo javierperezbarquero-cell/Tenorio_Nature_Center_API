@@ -83,23 +83,35 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.PUT("api/v1/idioma", server.updateIdioma)
 	router.DELETE("api/v1/idioma/:id", server.deleteIdioma)
 	//EmailCliente
-     router.POST("api/v1/emailcliente", server.createEmailCliente)
-     router.GET("api/v1/emailcliente", server.getAllEmailCliente)
-     router.GET("api/v1/emailcliente/:id", server.getEmailClienteById)
-     router.PUT("api/v1/emailcliente", server.updateEmailCliente)
-     router.DELETE("api/v1/emailcliente/:id", server.deleteEmailCliente)
-     //IdiomaGuia
-     router.POST("api/v1/idiomaguia", server.createIdiomaGuia)
-     router.GET("api/v1/idiomaguia", server.getAllIdiomaGuia)
-     router.GET("api/v1/idiomaguia/:id", server.getIdiomaGuiaById)
-     router.PUT("api/v1/idiomaguia", server.updateIdiomaGuia)
-     router.DELETE("api/v1/idiomaguia/:id", server.deleteIdiomaGuia)
-     //Transporte
-     router.POST("api/v1/transporte", server.createTransporte)
-     router.GET("api/v1/transporte", server.getAllTransporte)
-     router.GET("api/v1/transporte/:id", server.getTransporteById)
-     router.PUT("api/v1/transporte", server.updateTransporte)
-     router.DELETE("api/v1/transporte/:id", server.deleteTransporte)
+	router.POST("api/v1/emailcliente", server.createEmailCliente)
+	router.GET("api/v1/emailcliente", server.getAllEmailCliente)
+	router.GET("api/v1/emailcliente/:id", server.getEmailClienteById)
+	router.PUT("api/v1/emailcliente", server.updateEmailCliente)
+	router.DELETE("api/v1/emailcliente/:id", server.deleteEmailCliente)
+	//IdiomaGuia
+	router.POST("api/v1/idiomaguia", server.createIdiomaGuia)
+	router.GET("api/v1/idiomaguia", server.getAllIdiomaGuia)
+	router.GET("api/v1/idiomaguia/:id", server.getIdiomaGuiaById)
+	router.PUT("api/v1/idiomaguia", server.updateIdiomaGuia)
+	router.DELETE("api/v1/idiomaguia/:id", server.deleteIdiomaGuia)
+	//Transporte
+	router.POST("api/v1/transporte", server.createTransporte)
+	router.GET("api/v1/transporte", server.getAllTransporte)
+	router.GET("api/v1/transporte/:id", server.getTransporteById)
+	router.PUT("api/v1/transporte", server.updateTransporte)
+	router.DELETE("api/v1/transporte/:id", server.deleteTransporte)
+	// Reserva
+	router.POST("api/v1/reserva", server.createReserva)
+	router.GET("api/v1/reserva", server.getAllReservas)
+	router.GET("api/v1/reserva/:id", server.getReservaById)
+	router.PUT("api/v1/reserva", server.updateReserva)
+	router.DELETE("api/v1/reserva/:id", server.deleteReserva)
+	// Participante
+	router.POST("api/v1/participante", server.createParticipante)
+	router.GET("api/v1/participante", server.getAllParticipantes)
+	router.GET("api/v1/participante/:id", server.getParticipanteById)
+	router.PUT("api/v1/participante", server.updateParticipante)
+	router.DELETE("api/v1/participante/:id", server.deleteParticipante)
 
 	//RUTAS CON MIDDLEWARE
 

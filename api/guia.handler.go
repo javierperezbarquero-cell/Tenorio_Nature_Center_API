@@ -27,7 +27,6 @@ type updateGuiaRequest struct {
 	Email        string    `json:"email" 		 	binding:"required"`
 }
 
-// POST: api/v1/guia
 func (server *Server) createGuia(ctx *gin.Context) {
 	var req createGuiaRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -50,7 +49,6 @@ func (server *Server) createGuia(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"generated_id": lastId})
 }
 
-// GET: api/v1/guia
 func (server *Server) getAllGuia(ctx *gin.Context) {
 	guia, err := server.dbtx.GetAllGuia(ctx)
 	if err != nil {
@@ -79,7 +77,6 @@ func (server *Server) getGuiaById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, guia)
 }
 
-// PuT: api/v1/guia
 func (server *Server) updateGuia(ctx *gin.Context) {
 	var req updateGuiaRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -104,7 +101,6 @@ func (server *Server) updateGuia(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Guía actualizada correctamente"})
 }
 
-// DELETE: api/v1/guia
 func (server *Server) deleteGuia(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

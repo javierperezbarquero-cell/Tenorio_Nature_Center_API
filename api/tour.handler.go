@@ -81,7 +81,6 @@ func (server *Server) getTourById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, tour)
 }
 
-// PUT: api/v1/tour
 func (server *Server) updateTour(ctx *gin.Context) {
 	var req updateTourRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -96,7 +95,7 @@ func (server *Server) updateTour(ctx *gin.Context) {
 		Duracion:     req.Duracion,
 		Cuposmaximos: req.CuposMaximos,
 		Preciobase:   req.PrecioBase,
-		Idtour:       req.IdTour, // Revisa si sqlc generó 'Idtour' o 'IdTour'
+		Idtour:       req.IdTour,
 	}
 
 	_, err := server.dbtx.UpdateTour(ctx, args)
@@ -107,7 +106,6 @@ func (server *Server) updateTour(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Tour actualizado correctamente"})
 }
 
-// DELETE: api/v1/tour/:id
 func (server *Server) deleteTour(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
