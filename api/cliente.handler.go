@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"rest/dto"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +13,7 @@ type createClienteRequest struct {
 	Nombre        string    `json:"nombre" binding:"required"`
 	Telefono      string     `json:"telefono" binding:"required"`
 	Nacionalidad  string    `json:"nacionalidad" binding:"required"`
-	FechaRegistro time.Time `json:"fechaRegistro" binding:"required"`
+	FechaRegistro string `json:"fechaRegistro" binding:"required"`
 }
 
 type updateClienteRequest struct {
@@ -22,7 +21,7 @@ type updateClienteRequest struct {
 	Nombre        string    `json:"nombre" binding:"required"`
 	Telefono      string     `json:"telefono" binding:"required"`
 	Nacionalidad  string    `json:"nacionalidad" binding:"required"`
-	FechaRegistro time.Time `json:"fechaRegistro" binding:"required"`
+	FechaRegistro string `json:"fechaRegistro" binding:"required"`
 }
 
 func (server *Server) createCliente(ctx *gin.Context) {
@@ -31,11 +30,16 @@ func (server *Server) createCliente(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fechaReg, err := parsearFecha(req.FechaRegistro, "fechaNac")
+	if err != nil {
+    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+	}
 	args := dto.CreateClienteParams{
 		Nombre:        req.Nombre,
 		Telefono:      req.Telefono,
 		Nacionalidad:  req.Nacionalidad,
-		Fecharegistro: req.FechaRegistro,
+		Fecharegistro: fechaReg,
 	}
 	cliente, err := server.dbtx.CreateCliente(ctx, args)
 	if err != nil {
@@ -80,16 +84,21 @@ func (server *Server) updateCliente(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fechaReg, err := parsearFecha(req.FechaRegistro, "fechaNac")
+	if err != nil {
+    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+	}
 
 	args := dto.UpdateClienteParams{
 		Nombre:        req.Nombre,
 		Telefono:      req.Telefono,
 		Nacionalidad:  req.Nacionalidad,
-		Fecharegistro: req.FechaRegistro,
+		Fecharegistro: fechaReg,
 		Idcliente:     req.IdCliente,
 	}
 
-	_, err := server.dbtx.UpdateCliente(ctx, args)
+	_, err = server.dbtx.UpdateCliente(ctx, args)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

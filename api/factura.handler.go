@@ -27,7 +27,7 @@ type createFacturaRequest struct {
 type updateFacturaRequest struct {
 	IdFactura     int32  `json:"idFactura" binding:"required"`
 	IdReserva     int32  `json:"idReserva" binding:"required"`
-	IdEstadoPago  int32 `json:"idEstadoPago" binding:"required"`
+	IdEstadoPago  int32  `json:"idEstadoPago" binding:"required"`
 	NumeroFactura string `json:"numeroFactura" binding:"required"`
 	FechaFactura  string `json:"fechaFactura" binding:"required"`
 	MetodoPago    string `json:"metodoPago" binding:"required"`
@@ -38,7 +38,6 @@ type updateFacturaRequest struct {
 	Descuento     string `json:"descuento" binding:"required"`
 	PrecioTotal   string `json:"precioTotal" binding:"required"`
 }
-
 
 func (server *Server) createFactura(ctx *gin.Context) {
 	var req createFacturaRequest
@@ -52,27 +51,23 @@ func (server *Server) createFactura(ctx *gin.Context) {
 		return
 	}
 
-	fechaFactura, err := time.Parse("2006-01-02", req.FechaFactura)
+	fechaFac, err := parsearFecha(req.FechaFactura, "fechaFactura")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Formato de fechaFactura inválido, use YYYY-MM-DD"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	var fechaPago sql.NullTime
-	if req.FechaPago != "" {
-		parsed, err := time.Parse("2006-01-02", req.FechaPago)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Formato de fechaPago inválido, use YYYY-MM-DD"})
-			return
-		}
-		fechaPago = sql.NullTime{Time: parsed, Valid: true}
+	fechaPago, err := parsearFechaNullable(req.FechaPago, "fechaPago")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	args := dto.CreateFacturaParams{
 		Idreserva:     req.IdReserva,
 		Idestadopago:  req.IdEstadoPago,
 		Numerofactura: req.NumeroFactura,
-		Fechafactura:  fechaFactura,
+		Fechafactura:  fechaFac,
 		Metodopago:    req.MetodoPago,
 		Moneda:        req.Moneda,
 		Fechapago:     fechaPago,
@@ -136,9 +131,9 @@ func (server *Server) updateFactura(ctx *gin.Context) {
 		return
 	}
 
-	fechaFactura, err := time.Parse("2006-01-02", req.FechaFactura)
+	fechaFac, err := parsearFecha(req.FechaFactura, "fechaFactura")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Formato de fechaFactura inválido, use YYYY-MM-DD"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -156,7 +151,7 @@ func (server *Server) updateFactura(ctx *gin.Context) {
 		Idreserva:     req.IdReserva,
 		Idestadopago:  req.IdEstadoPago,
 		Numerofactura: req.NumeroFactura,
-		Fechafactura:  fechaFactura,
+		Fechafactura:  fechaFac,
 		Metodopago:    req.MetodoPago,
 		Moneda:        req.Moneda,
 		Fechapago:     fechaPago,

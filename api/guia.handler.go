@@ -5,14 +5,13 @@ import (
 	"net/http"
 	"rest/dto"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type createGuiaRequest struct {
 	Nombre       string    `json:"nombre"		 	binding:"required"`
-	FechaNac     time.Time `json:"fechanac" 	 	binding:"required"`
+	FechaNac     string    `json:"fechanac" 	 	binding:"required"`
 	Telefono     string    `json:"telefono" 	 	binding:"required"`
 	Nacionalidad string    `json:"nacionalidad" 	binding:"required"`
 	Email        string    `json:"email" 		 	binding:"required"`
@@ -21,8 +20,8 @@ type createGuiaRequest struct {
 type updateGuiaRequest struct {
 	IdGuia       int32     `json:"idGuia"	    binding:"required"`
 	Nombre       string    `json:"nombre" 			binding:"required"`
-	FechaNac     time.Time `json:"fechanac" 		binding:"required"`
-	Telefono     string     `json:"telefono" 		binding:"required"`
+	FechaNac     string    `json:"fechaNac" 		binding:"required"`
+	Telefono     string    `json:"telefono" 		binding:"required"`
 	Nacionalidad string    `json:"nacionalidad" 	binding:"required"`
 	Email        string    `json:"email" 		 	binding:"required"`
 }
@@ -33,9 +32,14 @@ func (server *Server) createGuia(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
+	if err != nil {
+    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+	}
 	args := dto.CreateGuiaParams{
 		Nombre:       req.Nombre,
-		Fechanac:     req.FechaNac,
+		Fechanac:     fechaNac,
 		Telefono:     req.Telefono,
 		Nacionalidad: req.Nacionalidad,
 		Email:        req.Email,
@@ -83,17 +87,22 @@ func (server *Server) updateGuia(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
+	if err != nil {
+    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+	}
 
 	args := dto.UpdateGuiaParams{
 		Nombre:       req.Nombre,
-		Fechanac:     req.FechaNac,
+		Fechanac:     fechaNac,
 		Telefono:     req.Telefono,
 		Nacionalidad: req.Nacionalidad,
 		Email:        req.Email,
 		Idguia:       req.IdGuia,
 	}
 
-	_, err := server.dbtx.UpdateGuia(ctx, args)
+	_, err = server.dbtx.UpdateGuia(ctx, args)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

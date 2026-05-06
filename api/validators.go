@@ -3,6 +3,8 @@ package api
 import (
     "fmt"
     "strconv"
+	"time"
+	"database/sql"
 )
 
 func validarDecimal(valor string, campo string) error {
@@ -49,4 +51,23 @@ func validarCamposDecimalesTour(precioBase string) error {
         }
     }
     return nil
+}
+
+func parsearFecha(valor string, campo string) (time.Time, error) {
+    fecha, err := time.Parse("2006-01-02", valor)
+    if err != nil {
+        return time.Time{}, fmt.Errorf("formato de %s inválido, use YYYY-MM-DD", campo)
+    }
+    return fecha, nil
+}
+
+func parsearFechaNullable(valor string, campo string) (sql.NullTime, error) {
+    if valor == "" {
+        return sql.NullTime{Valid: false}, nil
+    }
+    fecha, err := time.Parse("2006-01-02", valor)
+    if err != nil {
+        return sql.NullTime{}, fmt.Errorf("formato de %s inválido, use YYYY-MM-DD", campo)
+    }
+    return sql.NullTime{Time: fecha, Valid: true}, nil
 }
