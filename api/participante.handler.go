@@ -15,7 +15,7 @@ type createParticipanteRequest struct {
 	Nombre       string    `json:"nombre" binding:"required"`
 	FechaNac     time.Time `json:"fechaNac" binding:"required"`
 	Nacionalidad string    `json:"nacionalidad" binding:"required"`
-	Telefono     int32     `json:"telefono" binding:"required"`
+	Telefono     string     `json:"telefono" binding:"required"`
 }
 
 type updateParticipanteRequest struct {
@@ -24,7 +24,7 @@ type updateParticipanteRequest struct {
 	Nombre         string    `json:"nombre" binding:"required"`
 	FechaNac       time.Time `json:"fechaNac" binding:"required"`
 	Nacionalidad   string    `json:"nacionalidad" binding:"required"`
-	Telefono       int32     `json:"telefono" binding:"required"`
+	Telefono       string     `json:"telefono" binding:"required"`
 }
 
 func (server *Server) createParticipante(ctx *gin.Context) {

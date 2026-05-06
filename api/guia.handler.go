@@ -13,7 +13,7 @@ import (
 type createGuiaRequest struct {
 	Nombre       string    `json:"nombre"		 	binding:"required"`
 	FechaNac     time.Time `json:"fechanac" 	 	binding:"required"`
-	Telefono     int32     `json:"telefono" 	 	binding:"required"`
+	Telefono     string    `json:"telefono" 	 	binding:"required"`
 	Nacionalidad string    `json:"nacionalidad" 	binding:"required"`
 	Email        string    `json:"email" 		 	binding:"required"`
 }
@@ -22,7 +22,7 @@ type updateGuiaRequest struct {
 	IdGuia       int32     `json:"idGuia"	    binding:"required"`
 	Nombre       string    `json:"nombre" 			binding:"required"`
 	FechaNac     time.Time `json:"fechanac" 		binding:"required"`
-	Telefono     int32     `json:"telefono" 		binding:"required"`
+	Telefono     string     `json:"telefono" 		binding:"required"`
 	Nacionalidad string    `json:"nacionalidad" 	binding:"required"`
 	Email        string    `json:"email" 		 	binding:"required"`
 }
@@ -36,7 +36,7 @@ func (server *Server) createGuia(ctx *gin.Context) {
 	args := dto.CreateGuiaParams{
 		Nombre:       req.Nombre,
 		Fechanac:     req.FechaNac,
-		Telefono:     int32(req.Telefono),
+		Telefono:     req.Telefono,
 		Nacionalidad: req.Nacionalidad,
 		Email:        req.Email,
 	}
@@ -87,7 +87,7 @@ func (server *Server) updateGuia(ctx *gin.Context) {
 	args := dto.UpdateGuiaParams{
 		Nombre:       req.Nombre,
 		Fechanac:     req.FechaNac,
-		Telefono:     int32(req.Telefono),
+		Telefono:     req.Telefono,
 		Nacionalidad: req.Nacionalidad,
 		Email:        req.Email,
 		Idguia:       req.IdGuia,

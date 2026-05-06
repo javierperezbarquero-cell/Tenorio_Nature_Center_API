@@ -13,7 +13,7 @@ import (
 type createChoferRequest struct {
 	Nombre       string    `json:"nombre"        binding:"required"`
 	FechaNac     time.Time `json:"fechaNac"      binding:"required"`
-	Telefono     int32     `json:"telefono"      binding:"required"`
+	Telefono     string     `json:"telefono"      binding:"required"`
 	Email        string    `json:"email"         binding:"required"`
 	TipoLicencia string    `json:"tipoLicencia"  binding:"required"`
 	Nacionalidad string    `json:"nacionalidad"  binding:"required"`
@@ -23,7 +23,7 @@ type updateChoferRequest struct {
 	IdChofer     int32     `json:"idChofer"      binding:"required"`
 	Nombre       string    `json:"nombre"        binding:"required"`
 	FechaNac     time.Time `json:"fechaNac"      binding:"required"`
-	Telefono     int32     `json:"telefono"      binding:"required"`
+	Telefono     string     `json:"telefono"      binding:"required"`
 	Email        string    `json:"email"         binding:"required"`
 	TipoLicencia string    `json:"tipoLicencia"  binding:"required"`
 	Nacionalidad string    `json:"nacionalidad"  binding:"required"`
@@ -38,7 +38,7 @@ func (server *Server) createChofer(ctx *gin.Context) {
 	args := dto.CreateChoferParams{
 		Nombre:       req.Nombre,
 		Fechanac:     req.FechaNac,
-		Telefono:     int32(req.Telefono),
+		Telefono:     req.Telefono,
 		Email:        req.Email,
 		Tipolicencia: req.TipoLicencia,
 		Nacionalidad: req.Nacionalidad,

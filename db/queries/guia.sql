@@ -15,7 +15,6 @@ SET nombre = ?,
     telefono = ?,
     nacionalidad = ?,
     email = ?,
-    fechaCreacion = ?,
     fechaActualizacion = now()
 WHERE idGuia = ?;
 

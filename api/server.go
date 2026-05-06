@@ -100,6 +100,12 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.GET("api/v1/transporte/:id", server.getTransporteById)
 	router.PUT("api/v1/transporte", server.updateTransporte)
 	router.DELETE("api/v1/transporte/:id", server.deleteTransporte)
+	// Estado Reserva
+	router.POST("api/v1/estadoreserva", server.createEstadoReserva)
+	router.GET("api/v1/estadoreserva", server.getAllEstadoReserva)
+	router.GET("api/v1/estadoreserva/:id", server.getEstadoReservaById)
+	router.PUT("api/v1/estadoreserva", server.updateEstadoReserva)
+	router.DELETE("api/v1/estadoreserva/:id", server.deleteEstadoReserva)
 	// Reserva
 	router.POST("api/v1/reserva", server.createReserva)
 	router.GET("api/v1/reserva", server.getAllReservas)
@@ -112,6 +118,18 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.GET("api/v1/participante/:id", server.getParticipanteById)
 	router.PUT("api/v1/participante", server.updateParticipante)
 	router.DELETE("api/v1/participante/:id", server.deleteParticipante)
+	// Estado Pago
+	router.POST("api/v1/estadopago", server.createEstadoPago)
+	router.GET("api/v1/estadopago", server.getAllEstadoPago)
+	router.GET("api/v1/estadopago/:id", server.getEstadoPagoById)
+	router.PUT("api/v1/estadopago", server.updateEstadoPago)
+	router.DELETE("api/v1/estadopago/:id", server.deleteEstadoPago)
+	// Factura
+	router.POST("api/v1/factura", server.createFactura)
+	router.GET("api/v1/factura", server.getAllFacturas)
+	router.GET("api/v1/factura/:id", server.getFacturaById)
+	router.PUT("api/v1/factura", server.updateFactura)
+	router.DELETE("api/v1/factura/:id", server.deleteFactura)
 
 	//RUTAS CON MIDDLEWARE
 

@@ -12,7 +12,7 @@ import (
 
 type createClienteRequest struct {
 	Nombre        string    `json:"nombre" binding:"required"`
-	Telefono      int32     `json:"telefono" binding:"required"`
+	Telefono      string     `json:"telefono" binding:"required"`
 	Nacionalidad  string    `json:"nacionalidad" binding:"required"`
 	FechaRegistro time.Time `json:"fechaRegistro" binding:"required"`
 }
@@ -20,7 +20,7 @@ type createClienteRequest struct {
 type updateClienteRequest struct {
 	IdCliente     int32     `json:"idCliente" binding:"required"`
 	Nombre        string    `json:"nombre" binding:"required"`
-	Telefono      int32     `json:"telefono" binding:"required"`
+	Telefono      string     `json:"telefono" binding:"required"`
 	Nacionalidad  string    `json:"nacionalidad" binding:"required"`
 	FechaRegistro time.Time `json:"fechaRegistro" binding:"required"`
 }
@@ -33,7 +33,7 @@ func (server *Server) createCliente(ctx *gin.Context) {
 	}
 	args := dto.CreateClienteParams{
 		Nombre:        req.Nombre,
-		Telefono:      int32(req.Telefono),
+		Telefono:      req.Telefono,
 		Nacionalidad:  req.Nacionalidad,
 		Fecharegistro: req.FechaRegistro,
 	}
@@ -83,7 +83,7 @@ func (server *Server) updateCliente(ctx *gin.Context) {
 
 	args := dto.UpdateClienteParams{
 		Nombre:        req.Nombre,
-		Telefono:      int32(req.Telefono),
+		Telefono:      req.Telefono,
 		Nacionalidad:  req.Nacionalidad,
 		Fecharegistro: req.FechaRegistro,
 		Idcliente:     req.IdCliente,
