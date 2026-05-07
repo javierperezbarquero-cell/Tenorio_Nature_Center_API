@@ -1,7 +1,7 @@
 CREATE TABLE Cliente(
     idCliente INT AUTO_INCREMENT NOT NULL,
     nombre VARCHAR(45) NOT NULL,
-    telefono INT NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
     nacionalidad VARCHAR(25) NOT NULL,
     fechaRegistro DATE NOT NULL,
     fechaCreacion DATETIME DEFAULT NULL,
@@ -10,13 +10,24 @@ CREATE TABLE Cliente(
 ) ENGINE=INNODB;
 
 
+CREATE TABLE EmailCliente(
+    idEmailCliente INT AUTO_INCREMENT NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    idCliente INT NOT NULL,
+    fechaCreacion DATETIME DEFAULT NULL,
+    fechaActualizacion DATETIME DEFAULT NULL,
+    CONSTRAINT pk_cliente_email PRIMARY KEY(idEmailCliente),
+    CONSTRAINT fk_email_cliente FOREIGN KEY(idCliente) REFERENCES Cliente(idCliente)
+) ENGINE=INNODB;
+
+
 CREATE TABLE Guia(
     idGuia INT AUTO_INCREMENT NOT NULL,
     nombre VARCHAR(45) NOT NULL,
     fechaNac DATE NOT NULL,
-    telefono INT NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
     nacionalidad VARCHAR(25) NOT NULL,
-    email VARCHAR(45) NOT NULL,
+    email VARCHAR(150) NOT NULL,
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_guia PRIMARY KEY(idGuia)
@@ -27,47 +38,13 @@ CREATE TABLE Chofer(
     idChofer INT AUTO_INCREMENT NOT NULL,
     nombre VARCHAR(45) NOT NULL,
     fechaNac DATE NOT NULL,
-    telefono INT NOT NULL,
-    email VARCHAR(45) NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
+    email VARCHAR(150) NOT NULL,
     tipoLicencia VARCHAR(10) NOT NULL,
     nacionalidad VARCHAR(25) NOT NULL,
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_chofer PRIMARY KEY(idChofer)
-) ENGINE=INNODB;
-
-
-CREATE TABLE Ubicacion(
-    idUbicacion INT AUTO_INCREMENT NOT NULL,
-    nombre VARCHAR(45) NOT NULL,
-    direccion VARCHAR(45) NOT NULL,
-    fechaCreacion DATETIME DEFAULT NULL,
-    fechaActualizacion DATETIME DEFAULT NULL,
-    CONSTRAINT pk_ubicacion PRIMARY KEY(idUbicacion)
-) ENGINE=INNODB;
-
-
-CREATE TABLE Idioma(
-    idIdioma INT AUTO_INCREMENT NOT NULL,
-    nombre VARCHAR(25) NOT NULL,
-    fechaCreacion DATETIME DEFAULT NULL,
-    fechaActualizacion DATETIME DEFAULT NULL,
-    CONSTRAINT pk_idioma PRIMARY KEY(idIdioma),
-    CONSTRAINT uq_idioma_nombre UNIQUE(nombre)
-) ENGINE=INNODB;
-
-
-CREATE TABLE Tour(
-    idTour INT AUTO_INCREMENT NOT NULL,
-    nombre VARCHAR(45) NOT NULL,
-    descripcion VARCHAR(90) NOT NULL,
-    horario VARCHAR(45) NOT NULL,
-    duracion INT NOT NULL,
-    cuposMaximos INT NOT NULL,
-    precioBase DOUBLE NOT NULL,
-    fechaCreacion DATETIME DEFAULT NULL,
-    fechaActualizacion DATETIME DEFAULT NULL,
-    CONSTRAINT pk_tour PRIMARY KEY(idTour)
 ) ENGINE=INNODB;
 
 
@@ -94,14 +71,23 @@ CREATE TABLE Vehiculo(
 ) ENGINE=INNODB;
 
 
-CREATE TABLE EmailCliente(
-    idEmailCliente INT AUTO_INCREMENT NOT NULL,
-    email VARCHAR(45) NOT NULL,
-    idCliente INT NOT NULL,
+CREATE TABLE Ubicacion(
+    idUbicacion INT AUTO_INCREMENT NOT NULL,
+    nombre VARCHAR(45) NOT NULL,
+    direccion VARCHAR(150) NOT NULL,
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
-    CONSTRAINT pk_cliente_email PRIMARY KEY(idEmailCliente),
-    CONSTRAINT fk_email_cliente FOREIGN KEY(idCliente) REFERENCES Cliente(idCliente)
+    CONSTRAINT pk_ubicacion PRIMARY KEY(idUbicacion)
+) ENGINE=INNODB;
+
+
+CREATE TABLE Idioma(
+    idIdioma INT AUTO_INCREMENT NOT NULL,
+    nombre VARCHAR(25) NOT NULL,
+    fechaCreacion DATETIME DEFAULT NULL,
+    fechaActualizacion DATETIME DEFAULT NULL,
+    CONSTRAINT pk_idioma PRIMARY KEY(idIdioma),
+    CONSTRAINT uq_idioma_nombre UNIQUE(nombre)
 ) ENGINE=INNODB;
 
 
@@ -117,6 +103,31 @@ CREATE TABLE IdiomaGuia(
 ) ENGINE=INNODB;
 
 
+CREATE TABLE Tour(
+    idTour INT AUTO_INCREMENT NOT NULL,
+    nombre VARCHAR(45) NOT NULL,
+    descripcion VARCHAR(150) NOT NULL,
+    horario VARCHAR(45) NOT NULL,
+    duracion INT NOT NULL,
+    cuposMaximos INT NOT NULL,
+    precioBase DECIMAL(10,2) NOT NULL,
+    fechaCreacion DATETIME DEFAULT NULL,
+    fechaActualizacion DATETIME DEFAULT NULL,
+    CONSTRAINT pk_tour PRIMARY KEY(idTour)
+) ENGINE=INNODB;
+
+
+CREATE TABLE EstadoReserva(
+    idEstadoReserva INT AUTO_INCREMENT NOT NULL,
+    nombre VARCHAR(20) NOT NULL,
+    descripcion VARCHAR(100) DEFAULT NULL,
+    fechaCreacion DATETIME DEFAULT NULL,
+    fechaActualizacion DATETIME DEFAULT NULL,
+    CONSTRAINT pk_estadoReserva PRIMARY KEY(idEstadoReserva),
+    CONSTRAINT uq_estadoReserva_nombre UNIQUE(nombre)
+) ENGINE=INNODB;
+
+
 CREATE TABLE Reserva(
     idReserva INT AUTO_INCREMENT NOT NULL,
     idCliente INT NOT NULL,
@@ -125,7 +136,9 @@ CREATE TABLE Reserva(
     idTransporte INT NOT NULL,
     idUbicacion INT NOT NULL,
     idIdioma INT NOT NULL,
+    idEstadoReserva INT NOT NULL,
     cantidadPersonas INT NOT NULL,
+    fechaTour DATE NOT NULL,
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_reserva PRIMARY KEY(idReserva),
@@ -134,7 +147,8 @@ CREATE TABLE Reserva(
     CONSTRAINT fk_reserva_guia FOREIGN KEY(idGuia) REFERENCES Guia(idGuia),
     CONSTRAINT fk_reserva_transporte FOREIGN KEY(idTransporte) REFERENCES Transporte(idTransporte),
     CONSTRAINT fk_reserva_ubicacion FOREIGN KEY(idUbicacion) REFERENCES Ubicacion(idUbicacion),
-    CONSTRAINT fk_reserva_idioma FOREIGN KEY(idIdioma) REFERENCES Idioma(idIdioma)
+    CONSTRAINT fk_reserva_idioma FOREIGN KEY(idIdioma) REFERENCES Idioma(idIdioma),
+    CONSTRAINT fk_reserva_estadoReserva FOREIGN KEY(idEstadoReserva) REFERENCES EstadoReserva(idEstadoReserva)
 ) ENGINE=INNODB;
 
 
@@ -144,7 +158,7 @@ CREATE TABLE Participante(
     nombre VARCHAR(45) NOT NULL,
     fechaNac DATE NOT NULL,
     nacionalidad VARCHAR(45) NOT NULL,
-    telefono INT NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_participante PRIMARY KEY(idParticipante),
@@ -152,14 +166,25 @@ CREATE TABLE Participante(
 ) ENGINE=INNODB;
 
 
+CREATE TABLE EstadoPago(
+    idEstadoPago INT AUTO_INCREMENT NOT NULL,
+    nombre VARCHAR(20) NOT NULL,
+    descripcion VARCHAR(100) DEFAULT NULL,
+    fechaCreacion DATETIME DEFAULT NULL,
+    fechaActualizacion DATETIME DEFAULT NULL,
+    CONSTRAINT pk_estadoPago PRIMARY KEY(idEstadoPago),
+    CONSTRAINT uq_estadoPago_nombre UNIQUE(nombre)
+) ENGINE=INNODB;
+
+
 CREATE TABLE Factura(
     idFactura INT AUTO_INCREMENT NOT NULL,
     idReserva INT NOT NULL,
+    idEstadoPago INT NOT NULL,
     numeroFactura VARCHAR(25) NOT NULL,
     fechaFactura DATE NOT NULL,
-    metodoPago VARCHAR(15) NOT NULL,
+    metodoPago VARCHAR(20) NOT NULL,
     moneda VARCHAR(30) NOT NULL,
-    estadoPago VARCHAR(25) NOT NULL,
     fechaPago DATE DEFAULT NULL,
     subtotal DECIMAL(10,2) NOT NULL,
     impuesto DECIMAL(10,2) NOT NULL,
@@ -169,7 +194,8 @@ CREATE TABLE Factura(
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_factura PRIMARY KEY(idFactura),
     CONSTRAINT uq_factura_reserva UNIQUE(idReserva),
-    CONSTRAINT fk_factura_reserva FOREIGN KEY(idReserva) REFERENCES Reserva(idReserva)
+    CONSTRAINT fk_factura_reserva FOREIGN KEY(idReserva) REFERENCES Reserva(idReserva),
+    CONSTRAINT fk_factura_estadoPago FOREIGN KEY(idEstadoPago) REFERENCES EstadoPago(idEstadoPago)
 ) ENGINE=INNODB;
 
 

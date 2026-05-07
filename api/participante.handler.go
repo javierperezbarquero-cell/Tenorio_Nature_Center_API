@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"rest/dto"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,18 +12,18 @@ import (
 type createParticipanteRequest struct {
 	IdReserva    int32     `json:"idReserva" binding:"required"`
 	Nombre       string    `json:"nombre" binding:"required"`
-	FechaNac     time.Time `json:"fechaNac" binding:"required"`
+	FechaNac     string    `json:"fechaNac" binding:"required"`
 	Nacionalidad string    `json:"nacionalidad" binding:"required"`
-	Telefono     int32     `json:"telefono" binding:"required"`
+	Telefono     string    `json:"telefono" binding:"required"`
 }
 
 type updateParticipanteRequest struct {
 	IdParticipante int32     `json:"idParticipante" binding:"required"`
 	IdReserva      int32     `json:"idReserva" binding:"required"`
 	Nombre         string    `json:"nombre" binding:"required"`
-	FechaNac       time.Time `json:"fechaNac" binding:"required"`
+	FechaNac       string    `json:"fechaNac" binding:"required"`
 	Nacionalidad   string    `json:"nacionalidad" binding:"required"`
-	Telefono       int32     `json:"telefono" binding:"required"`
+	Telefono       string    `json:"telefono" binding:"required"`
 }
 
 func (server *Server) createParticipante(ctx *gin.Context) {
@@ -33,11 +32,16 @@ func (server *Server) createParticipante(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
+	if err != nil {
+    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+	}
 
 	args := dto.CreateParticipanteParams{
 		Idreserva:    req.IdReserva,
 		Nombre:       req.Nombre,
-		Fechanac:     req.FechaNac,
+		Fechanac:     fechaNac,
 		Nacionalidad: req.Nacionalidad,
 		Telefono:     req.Telefono,
 	}
@@ -90,17 +94,21 @@ func (server *Server) updateParticipante(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
+	if err != nil {
+    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+	}
 	args := dto.UpdateParticipanteParams{
 		Idreserva:      req.IdReserva,
 		Nombre:         req.Nombre,
-		Fechanac:       req.FechaNac,
+		Fechanac:       fechaNac,
 		Nacionalidad:   req.Nacionalidad,
 		Telefono:       req.Telefono,
 		Idparticipante: req.IdParticipante,
 	}
 
-	_, err := server.dbtx.UpdateParticipante(ctx, args)
+	_, err = server.dbtx.UpdateParticipante(ctx, args)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
