@@ -34,104 +34,108 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 		Credentials:     false,
 		ValidateHeaders: false,
 	}))
+
 	//RUTAS SIN MIDDLEWARE
-	//Chofer
-	router.POST("api/v1/chofer", server.createChofer)
-	router.GET("api/v1/chofer", server.getAllChofer)
-	router.GET("api/v1/chofer/:id", server.getChoferById)
-	router.PUT("api/v1/chofer", server.updateChofer)
-	router.DELETE("api/v1/chofer/:id", server.deleteChofer)
-	//Ubicacion
-	router.POST("api/v1/ubicacion", server.createUbicacion)
-	router.GET("api/v1/ubicacion", server.getAllUbicacion)
-	router.GET("api/v1/ubicacion/:id", server.getUbicacionById)
-	router.PUT("api/v1/ubicacion", server.updateUbicacion)
-	router.DELETE("api/v1/ubicacion/:id", server.deleteUbicacion)
-	//Vehiculo
-	router.POST("api/v1/vehiculo", server.createVehiculo)
-	router.GET("api/v1/vehiculo", server.getAllVehiculos)
-	router.GET("api/v1/vehiculo/:id", server.getVehiculoById)
-	router.PUT("api/v1/vehiculo", server.updateVehiculo)
-	router.DELETE("api/v1/vehiculo/:id", server.deleteVehiculo)
-	//Tour
-	router.POST("api/v1/tour", server.createTour)
-	router.GET("api/v1/tour", server.getAllTours)
-	router.GET("api/v1/tour/:id", server.getTourById)
-	router.PUT("api/v1/tour", server.updateTour)
-	router.DELETE("api/v1/tour/:id", server.deleteTour)
-	//Usuario
+	//Login
 	router.POST("api/v1/usuario/login", server.login)
-	router.POST("api/v1/usuario", server.createUsuario)
-	router.PUT("api/v1/usuario", server.updateUsuario)
-	router.DELETE("api/v1/usuario/:id", server.deleteUsuario)
-	//Cliente
-	router.POST("api/v1/cliente", server.createCliente)
-	router.GET("api/v1/cliente", server.getAllClientes)
-	router.GET("api/v1/cliente/:id", server.getClienteById)
-	router.PUT("api/v1/cliente", server.updateCliente)
-	router.DELETE("api/v1/cliente/:id", server.deleteCliente)
-	//Guia
-	router.POST("api/v1/guia", server.createGuia)
-	router.GET("api/v1/guia", server.getAllGuia)
-	router.GET("api/v1/guia/:id", server.getGuiaById)
-	router.PUT("api/v1/guia", server.updateGuia)
-	router.DELETE("api/v1/guia/:id", server.deleteGuia)
-	//Idioma
-	router.POST("api/v1/idioma", server.createIdioma)
-	router.GET("api/v1/idioma", server.getAllIdioma)
-	router.GET("api/v1/idioma/:id", server.getIdiomaById)
-	router.PUT("api/v1/idioma", server.updateIdioma)
-	router.DELETE("api/v1/idioma/:id", server.deleteIdioma)
-	//EmailCliente
-	router.POST("api/v1/emailcliente", server.createEmailCliente)
-	router.GET("api/v1/emailcliente", server.getAllEmailCliente)
-	router.GET("api/v1/emailcliente/:id", server.getEmailClienteById)
-	router.PUT("api/v1/emailcliente", server.updateEmailCliente)
-	router.DELETE("api/v1/emailcliente/:id", server.deleteEmailCliente)
-	//IdiomaGuia
-	router.POST("api/v1/idiomaguia", server.createIdiomaGuia)
-	router.GET("api/v1/idiomaguia", server.getAllIdiomaGuia)
-	router.GET("api/v1/idiomaguia/:id", server.getIdiomaGuiaById)
-	router.PUT("api/v1/idiomaguia", server.updateIdiomaGuia)
-	router.DELETE("api/v1/idiomaguia/:id", server.deleteIdiomaGuia)
-	//Transporte
-	router.POST("api/v1/transporte", server.createTransporte)
-	router.GET("api/v1/transporte", server.getAllTransporte)
-	router.GET("api/v1/transporte/:id", server.getTransporteById)
-	router.PUT("api/v1/transporte", server.updateTransporte)
-	router.DELETE("api/v1/transporte/:id", server.deleteTransporte)
-	// Estado Reserva
-	router.POST("api/v1/estadoreserva", server.createEstadoReserva)
-	router.GET("api/v1/estadoreserva", server.getAllEstadoReserva)
-	router.GET("api/v1/estadoreserva/:id", server.getEstadoReservaById)
-	router.PUT("api/v1/estadoreserva", server.updateEstadoReserva)
-	router.DELETE("api/v1/estadoreserva/:id", server.deleteEstadoReserva)
-	// Reserva
-	router.POST("api/v1/reserva", server.createReserva)
-	router.GET("api/v1/reserva", server.getAllReservas)
-	router.GET("api/v1/reserva/:id", server.getReservaById)
-	router.PUT("api/v1/reserva", server.updateReserva)
-	router.DELETE("api/v1/reserva/:id", server.deleteReserva)
-	// Participante
-	router.POST("api/v1/participante", server.createParticipante)
-	router.GET("api/v1/participante", server.getAllParticipantes)
-	router.GET("api/v1/participante/:id", server.getParticipanteById)
-	router.PUT("api/v1/participante", server.updateParticipante)
-	router.DELETE("api/v1/participante/:id", server.deleteParticipante)
-	// Estado Pago
-	router.POST("api/v1/estadopago", server.createEstadoPago)
-	router.GET("api/v1/estadopago", server.getAllEstadoPago)
-	router.GET("api/v1/estadopago/:id", server.getEstadoPagoById)
-	router.PUT("api/v1/estadopago", server.updateEstadoPago)
-	router.DELETE("api/v1/estadopago/:id", server.deleteEstadoPago)
-	// Factura
-	router.POST("api/v1/factura", server.createFactura)
-	router.GET("api/v1/factura", server.getAllFacturas)
-	router.GET("api/v1/factura/:id", server.getFacturaById)
-	router.PUT("api/v1/factura", server.updateFactura)
-	router.DELETE("api/v1/factura/:id", server.deleteFactura)
 
 	//RUTAS CON MIDDLEWARE
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenBuilder))
+
+	//Usuario
+	authRoutes.POST("api/v1/usuario", server.createUsuario)
+	authRoutes.PUT("api/v1/usuario", server.updateUsuario)
+	authRoutes.DELETE("api/v1/usuario/:id", server.deleteUsuario)
+	//Chofer
+	authRoutes.POST("api/v1/chofer", server.createChofer)
+	authRoutes.GET("api/v1/chofer", server.getAllChofer)
+	authRoutes.GET("api/v1/chofer/:id", server.getChoferById)
+	authRoutes.PUT("api/v1/chofer", server.updateChofer)
+	authRoutes.DELETE("api/v1/chofer/:id", server.deleteChofer)
+	//Ubicacion
+	authRoutes.POST("api/v1/ubicacion", server.createUbicacion)
+	authRoutes.GET("api/v1/ubicacion", server.getAllUbicacion)
+	authRoutes.GET("api/v1/ubicacion/:id", server.getUbicacionById)
+	authRoutes.PUT("api/v1/ubicacion", server.updateUbicacion)
+	authRoutes.DELETE("api/v1/ubicacion/:id", server.deleteUbicacion)
+	//Vehiculo
+	authRoutes.POST("api/v1/vehiculo", server.createVehiculo)
+	authRoutes.GET("api/v1/vehiculo", server.getAllVehiculos)
+	authRoutes.GET("api/v1/vehiculo/:id", server.getVehiculoById)
+	authRoutes.PUT("api/v1/vehiculo", server.updateVehiculo)
+	authRoutes.DELETE("api/v1/vehiculo/:id", server.deleteVehiculo)
+	//Tour
+	authRoutes.POST("api/v1/tour", server.createTour)
+	authRoutes.GET("api/v1/tour", server.getAllTours)
+	authRoutes.GET("api/v1/tour/:id", server.getTourById)
+	authRoutes.PUT("api/v1/tour", server.updateTour)
+	authRoutes.DELETE("api/v1/tour/:id", server.deleteTour)
+	//Cliente
+	authRoutes.POST("api/v1/cliente", server.createCliente)
+	authRoutes.GET("api/v1/cliente", server.getAllClientes)
+	authRoutes.GET("api/v1/cliente/:id", server.getClienteById)
+	authRoutes.PUT("api/v1/cliente", server.updateCliente)
+	authRoutes.DELETE("api/v1/cliente/:id", server.deleteCliente)
+	//Guia
+	authRoutes.POST("api/v1/guia", server.createGuia)
+	authRoutes.GET("api/v1/guia", server.getAllGuia)
+	authRoutes.GET("api/v1/guia/:id", server.getGuiaById)
+	authRoutes.PUT("api/v1/guia", server.updateGuia)
+	authRoutes.DELETE("api/v1/guia/:id", server.deleteGuia)
+	//Idioma
+	authRoutes.POST("api/v1/idioma", server.createIdioma)
+	authRoutes.GET("api/v1/idioma", server.getAllIdioma)
+	authRoutes.GET("api/v1/idioma/:id", server.getIdiomaById)
+	authRoutes.PUT("api/v1/idioma", server.updateIdioma)
+	authRoutes.DELETE("api/v1/idioma/:id", server.deleteIdioma)
+	//EmailCliente
+	authRoutes.POST("api/v1/emailcliente", server.createEmailCliente)
+	authRoutes.GET("api/v1/emailcliente", server.getAllEmailCliente)
+	authRoutes.GET("api/v1/emailcliente/:id", server.getEmailClienteById)
+	authRoutes.PUT("api/v1/emailcliente", server.updateEmailCliente)
+	authRoutes.DELETE("api/v1/emailcliente/:id", server.deleteEmailCliente)
+	//IdiomaGuia
+	authRoutes.POST("api/v1/idiomaguia", server.createIdiomaGuia)
+	authRoutes.GET("api/v1/idiomaguia", server.getAllIdiomaGuia)
+	authRoutes.GET("api/v1/idiomaguia/:id", server.getIdiomaGuiaById)
+	authRoutes.PUT("api/v1/idiomaguia", server.updateIdiomaGuia)
+	authRoutes.DELETE("api/v1/idiomaguia/:id", server.deleteIdiomaGuia)
+	//Transporte
+	authRoutes.POST("api/v1/transporte", server.createTransporte)
+	authRoutes.GET("api/v1/transporte", server.getAllTransporte)
+	authRoutes.GET("api/v1/transporte/:id", server.getTransporteById)
+	authRoutes.PUT("api/v1/transporte", server.updateTransporte)
+	authRoutes.DELETE("api/v1/transporte/:id", server.deleteTransporte)
+	// Estado Reserva
+	authRoutes.POST("api/v1/estadoreserva", server.createEstadoReserva)
+	authRoutes.GET("api/v1/estadoreserva", server.getAllEstadoReserva)
+	authRoutes.GET("api/v1/estadoreserva/:id", server.getEstadoReservaById)
+	authRoutes.PUT("api/v1/estadoreserva", server.updateEstadoReserva)
+	authRoutes.DELETE("api/v1/estadoreserva/:id", server.deleteEstadoReserva)
+	// Reserva
+	authRoutes.POST("api/v1/reserva", server.createReserva)
+	authRoutes.GET("api/v1/reserva", server.getAllReservas)
+	authRoutes.GET("api/v1/reserva/:id", server.getReservaById)
+	authRoutes.PUT("api/v1/reserva", server.updateReserva)
+	authRoutes.DELETE("api/v1/reserva/:id", server.deleteReserva)
+	// Participante
+	authRoutes.POST("api/v1/participante", server.createParticipante)
+	authRoutes.GET("api/v1/participante", server.getAllParticipantes)
+	authRoutes.GET("api/v1/participante/:id", server.getParticipanteById)
+	authRoutes.PUT("api/v1/participante", server.updateParticipante)
+	authRoutes.DELETE("api/v1/participante/:id", server.deleteParticipante)
+	// Estado Pago
+	authRoutes.POST("api/v1/estadopago", server.createEstadoPago)
+	authRoutes.GET("api/v1/estadopago", server.getAllEstadoPago)
+	authRoutes.GET("api/v1/estadopago/:id", server.getEstadoPagoById)
+	authRoutes.PUT("api/v1/estadopago", server.updateEstadoPago)
+	authRoutes.DELETE("api/v1/estadopago/:id", server.deleteEstadoPago)
+	// Factura
+	authRoutes.POST("api/v1/factura", server.createFactura)
+	authRoutes.GET("api/v1/factura", server.getAllFacturas)
+	authRoutes.GET("api/v1/factura/:id", server.getFacturaById)
+	authRoutes.PUT("api/v1/factura", server.updateFactura)
+	authRoutes.DELETE("api/v1/factura/:id", server.deleteFactura)
 
 	server.router = router
 	return server, nil
