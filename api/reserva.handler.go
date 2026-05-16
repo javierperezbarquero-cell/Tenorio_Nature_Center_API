@@ -42,8 +42,8 @@ func (server *Server) createReserva(ctx *gin.Context) {
 	}
 	fechaTour, err := parsearFecha(req.FechaTour, "fechaTour")
 	if err != nil {
-    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-    return
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	args := dto.CreateReservaParams{
@@ -108,8 +108,8 @@ func (server *Server) updateReserva(ctx *gin.Context) {
 	}
 	fechaTour, err := parsearFecha(req.FechaTour, "fechaTour")
 	if err != nil {
-    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-    return
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	args := dto.UpdateReservaParams{
