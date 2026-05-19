@@ -1,5 +1,4 @@
 package api
-
 import (
 	"database/sql"
 	"net/http"
@@ -10,24 +9,12 @@ import (
 )
 
 type createReservaRequest struct {
-	IdCliente        int32 `json:"idCliente" binding:"required"`
-	IdTour           int32 `json:"idTour" binding:"required"`
-	IdGuia           int32 `json:"idGuia" binding:"required"`
-	IdTransporte     int32 `json:"idTransporte" binding:"required"`
-	IdUbicacion      int32 `json:"idUbicacion" binding:"required"`
-	IdIdioma         int32 `json:"idIdioma" binding:"required"`
-	CantidadPersonas int32 `json:"cantidadPersonas" binding:"required"`
+	IdEstadoReserva int32 `json:"idEstadoReserva" binding:"required"`
 }
 
 type updateReservaRequest struct {
-	IdReserva        int32 `json:"idReserva" binding:"required"`
-	IdCliente        int32 `json:"idCliente" binding:"required"`
-	IdTour           int32 `json:"idTour" binding:"required"`
-	IdGuia           int32 `json:"idGuia" binding:"required"`
-	IdTransporte     int32 `json:"idTransporte" binding:"required"`
-	IdUbicacion      int32 `json:"idUbicacion" binding:"required"`
-	IdIdioma         int32 `json:"idIdioma" binding:"required"`
-	CantidadPersonas int32 `json:"cantidadPersonas" binding:"required"`
+	IdReserva       int32 `json:"idReserva"       binding:"required"`
+	IdEstadoReserva int32 `json:"idEstadoReserva" binding:"required"`
 }
 
 func (server *Server) createReserva(ctx *gin.Context) {
@@ -37,17 +24,7 @@ func (server *Server) createReserva(ctx *gin.Context) {
 		return
 	}
 
-	args := dto.CreateReservaParams{
-		Idcliente:        req.IdCliente,
-		Idtour:           req.IdTour,
-		Idguia:           req.IdGuia,
-		Idtransporte:     req.IdTransporte,
-		Idubicacion:      req.IdUbicacion,
-		Ididioma:         req.IdIdioma,
-		Cantidadpersonas: req.CantidadPersonas,
-	}
-
-	result, err := server.dbtx.CreateReserva(ctx, args)
+	result, err := server.dbtx.CreateReserva(ctx, req.IdEstadoReserva)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -85,7 +62,6 @@ func (server *Server) getReservaById(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
 	ctx.JSON(http.StatusOK, reserva)
 }
 
@@ -97,14 +73,8 @@ func (server *Server) updateReserva(ctx *gin.Context) {
 	}
 
 	args := dto.UpdateReservaParams{
-		Idcliente:        req.IdCliente,
-		Idtour:           req.IdTour,
-		Idguia:           req.IdGuia,
-		Idtransporte:     req.IdTransporte,
-		Idubicacion:      req.IdUbicacion,
-		Ididioma:         req.IdIdioma,
-		Cantidadpersonas: req.CantidadPersonas,
-		Idreserva:        req.IdReserva,
+		Idestadoreserva: req.IdEstadoReserva,
+		Idreserva:       req.IdReserva,
 	}
 
 	_, err := server.dbtx.UpdateReserva(ctx, args)
@@ -112,7 +82,6 @@ func (server *Server) updateReserva(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"message": "Reserva actualizada"})
 }
 
@@ -128,6 +97,5 @@ func (server *Server) deleteReserva(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"message": "Reserva eliminada"})
 }

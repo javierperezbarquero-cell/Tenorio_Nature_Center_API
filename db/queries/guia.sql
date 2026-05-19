@@ -5,17 +5,17 @@ SELECT * FROM Guia;
 SELECT * FROM Guia WHERE idGuia = ?;
 
 -- name: CreateGuia :execresult
-INSERT INTO Guia (nombre, fechaNac, telefono, nacionalidad, email, fechaCreacion, fechaActualizacion)
-VALUES (?, ?, ?, ?, ?, now(), now());
+INSERT INTO Guia (nombre, identificador, fechaNac, telefono, nacionalidad, email, fechaCreacion, fechaActualizacion)
+VALUES (?, ?, ?, ?, ?, ?, now(), now());
 
 -- name: UpdateGuia :execresult
 UPDATE Guia 
 SET nombre = ?,  
+    identificador = ?,
     fechaNac = ?,  
     telefono = ?,
     nacionalidad = ?,
     email = ?,
-    fechaCreacion = ?,
     fechaActualizacion = now()
 WHERE idGuia = ?;
 

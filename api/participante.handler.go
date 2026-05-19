@@ -5,26 +5,13 @@ import (
 	"net/http"
 	"rest/dto"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type createParticipanteRequest struct {
-	IdReserva    int32     `json:"idReserva" binding:"required"`
-	Nombre       string    `json:"nombre" binding:"required"`
-	FechaNac     time.Time `json:"fechaNac" binding:"required"`
-	Nacionalidad string    `json:"nacionalidad" binding:"required"`
-	Telefono     int32     `json:"telefono" binding:"required"`
-}
-
-type updateParticipanteRequest struct {
-	IdParticipante int32     `json:"idParticipante" binding:"required"`
-	IdReserva      int32     `json:"idReserva" binding:"required"`
-	Nombre         string    `json:"nombre" binding:"required"`
-	FechaNac       time.Time `json:"fechaNac" binding:"required"`
-	Nacionalidad   string    `json:"nacionalidad" binding:"required"`
-	Telefono       int32     `json:"telefono" binding:"required"`
+	IdCliente int32 `json:"idCliente" binding:"required"`
+	IdReserva int32 `json:"idReserva" binding:"required"`
 }
 
 func (server *Server) createParticipante(ctx *gin.Context) {
@@ -35,11 +22,8 @@ func (server *Server) createParticipante(ctx *gin.Context) {
 	}
 
 	args := dto.CreateParticipanteParams{
-		Idreserva:    req.IdReserva,
-		Nombre:       req.Nombre,
-		Fechanac:     req.FechaNac,
-		Nacionalidad: req.Nacionalidad,
-		Telefono:     req.Telefono,
+		Idcliente: req.IdCliente,
+		Idreserva: req.IdReserva,
 	}
 
 	result, err := server.dbtx.CreateParticipante(ctx, args)
@@ -80,33 +64,45 @@ func (server *Server) getParticipanteById(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
 	ctx.JSON(http.StatusOK, participante)
 }
 
-func (server *Server) updateParticipante(ctx *gin.Context) {
-	var req updateParticipanteRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+func (server *Server) getParticipanteByReserva(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	args := dto.UpdateParticipanteParams{
-		Idreserva:      req.IdReserva,
-		Nombre:         req.Nombre,
-		Fechanac:       req.FechaNac,
-		Nacionalidad:   req.Nacionalidad,
-		Telefono:       req.Telefono,
-		Idparticipante: req.IdParticipante,
-	}
-
-	_, err := server.dbtx.UpdateParticipante(ctx, args)
+	participantes, err := server.dbtx.GetParticipanteByReserva(ctx, int32(id))
 	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Participantes de la reserva no encontrados"})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	ctx.JSON(http.StatusOK, participantes)
+}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Participante actualizado"})
+func (server *Server) getParticipanteByCliente(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	participantes, err := server.dbtx.GetParticipanteByCliente(ctx, int32(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Reservas del cliente no encontradas"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, participantes)
 }
 
 func (server *Server) deleteParticipante(ctx *gin.Context) {
@@ -121,6 +117,5 @@ func (server *Server) deleteParticipante(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"message": "Participante eliminado"})
 }
