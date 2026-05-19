@@ -12,20 +12,26 @@ import (
 )
 
 const createCliente = `-- name: CreateCliente :execresult
-INSERT INTO Cliente (nombre, telefono, nacionalidad, fechaRegistro, fechaCreacion, fechaActualizacion)
-VALUES (?, ?, ?, ?, now(), now())
+INSERT INTO Cliente (idEmpresaCliente, nombre, identificador, fechaNac, telefono, nacionalidad, fechaRegistro, fechaCreacion, fechaActualizacion)
+VALUES (?, ?, ?, ?, ?, ?, ?, now(), now())
 `
 
 type CreateClienteParams struct {
-	Nombre        string    `json:"nombre"`
-	Telefono      string    `json:"telefono"`
-	Nacionalidad  string    `json:"nacionalidad"`
-	Fecharegistro time.Time `json:"fecharegistro"`
+	Idempresacliente sql.NullInt32 `json:"idempresacliente"`
+	Nombre           string        `json:"nombre"`
+	Identificador    string        `json:"identificador"`
+	Fechanac         time.Time     `json:"fechanac"`
+	Telefono         string        `json:"telefono"`
+	Nacionalidad     string        `json:"nacionalidad"`
+	Fecharegistro    time.Time     `json:"fecharegistro"`
 }
 
 func (q *Queries) CreateCliente(ctx context.Context, arg CreateClienteParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createCliente,
+		arg.Idempresacliente,
 		arg.Nombre,
+		arg.Identificador,
+		arg.Fechanac,
 		arg.Telefono,
 		arg.Nacionalidad,
 		arg.Fecharegistro,
@@ -41,7 +47,7 @@ func (q *Queries) DeleteCliente(ctx context.Context, idcliente int32) (sql.Resul
 }
 
 const getAllCliente = `-- name: GetAllCliente :many
-SELECT idcliente, nombre, telefono, nacionalidad, fecharegistro, fechacreacion, fechaactualizacion FROM Cliente
+SELECT idcliente, idempresacliente, nombre, identificador, fechanac, telefono, nacionalidad, fecharegistro, fechacreacion, fechaactualizacion FROM Cliente
 `
 
 func (q *Queries) GetAllCliente(ctx context.Context) ([]Cliente, error) {
@@ -55,7 +61,10 @@ func (q *Queries) GetAllCliente(ctx context.Context) ([]Cliente, error) {
 		var i Cliente
 		if err := rows.Scan(
 			&i.Idcliente,
+			&i.Idempresacliente,
 			&i.Nombre,
+			&i.Identificador,
+			&i.Fechanac,
 			&i.Telefono,
 			&i.Nacionalidad,
 			&i.Fecharegistro,
@@ -76,7 +85,7 @@ func (q *Queries) GetAllCliente(ctx context.Context) ([]Cliente, error) {
 }
 
 const getClienteById = `-- name: GetClienteById :one
-SELECT idcliente, nombre, telefono, nacionalidad, fecharegistro, fechacreacion, fechaactualizacion FROM Cliente WHERE idCliente = ?
+SELECT idcliente, idempresacliente, nombre, identificador, fechanac, telefono, nacionalidad, fecharegistro, fechacreacion, fechaactualizacion FROM Cliente WHERE idCliente = ?
 `
 
 func (q *Queries) GetClienteById(ctx context.Context, idcliente int32) (Cliente, error) {
@@ -84,7 +93,10 @@ func (q *Queries) GetClienteById(ctx context.Context, idcliente int32) (Cliente,
 	var i Cliente
 	err := row.Scan(
 		&i.Idcliente,
+		&i.Idempresacliente,
 		&i.Nombre,
+		&i.Identificador,
+		&i.Fechanac,
 		&i.Telefono,
 		&i.Nacionalidad,
 		&i.Fecharegistro,
@@ -96,7 +108,10 @@ func (q *Queries) GetClienteById(ctx context.Context, idcliente int32) (Cliente,
 
 const updateCliente = `-- name: UpdateCliente :execresult
 UPDATE Cliente 
-SET nombre = ?, 
+SET idEmpresaCliente = ?,
+    nombre = ?,
+    identificador = ?,
+    fechaNac = ?,
     telefono = ?, 
     nacionalidad = ?,
     fechaRegistro = ?, 
@@ -105,16 +120,22 @@ WHERE idCliente = ?
 `
 
 type UpdateClienteParams struct {
-	Nombre        string    `json:"nombre"`
-	Telefono      string    `json:"telefono"`
-	Nacionalidad  string    `json:"nacionalidad"`
-	Fecharegistro time.Time `json:"fecharegistro"`
-	Idcliente     int32     `json:"idcliente"`
+	Idempresacliente sql.NullInt32 `json:"idempresacliente"`
+	Nombre           string        `json:"nombre"`
+	Identificador    string        `json:"identificador"`
+	Fechanac         time.Time     `json:"fechanac"`
+	Telefono         string        `json:"telefono"`
+	Nacionalidad     string        `json:"nacionalidad"`
+	Fecharegistro    time.Time     `json:"fecharegistro"`
+	Idcliente        int32         `json:"idcliente"`
 }
 
 func (q *Queries) UpdateCliente(ctx context.Context, arg UpdateClienteParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateCliente,
+		arg.Idempresacliente,
 		arg.Nombre,
+		arg.Identificador,
+		arg.Fechanac,
 		arg.Telefono,
 		arg.Nacionalidad,
 		arg.Fecharegistro,

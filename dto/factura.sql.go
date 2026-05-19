@@ -82,25 +82,37 @@ SELECT
     f.precioTotal,
     f.fechaCreacion,
     f.fechaActualizacion,
- 
-    -- Reserva
-    r.cantidadPersonas,
- 
-    -- Cliente
-    c.nombre AS clienteNombre,
-    c.telefono AS clienteTelefono,
- 
-    -- Tour
-    t.nombre AS tourNombre,
- 
+
+    -- Cantidad de participantes calculada desde Participante
+    (SELECT COUNT(*) 
+     FROM Participante p 
+     WHERE p.idReserva = r.idReserva) AS cantidadPersonas,
+
+    -- Cliente: primer participante de la reserva
+    (SELECT c.nombre 
+     FROM Participante p 
+     JOIN Cliente c ON c.idCliente = p.idCliente 
+     WHERE p.idReserva = r.idReserva 
+     LIMIT 1) AS clienteNombre,
+
+    (SELECT c.telefono 
+     FROM Participante p 
+     JOIN Cliente c ON c.idCliente = p.idCliente 
+     WHERE p.idReserva = r.idReserva 
+     LIMIT 1) AS clienteTelefono,
+
+    -- Tour: primer detalle de la reserva
+    (SELECT t.nombre 
+     FROM DetalleReserva dr 
+     JOIN Tour t ON t.idTour = dr.idTour 
+     WHERE dr.idReserva = r.idReserva 
+     LIMIT 1) AS tourNombre,
+
     -- Estado Pago
     e.nombre AS nombreEstado
- 
+
 FROM Factura f
- 
 JOIN Reserva r ON f.idReserva = r.idReserva
-JOIN Cliente c ON r.idCliente = c.idCliente
-JOIN Tour t ON r.idTour = t.idTour
 JOIN EstadoPago e ON f.idEstadoPago = e.idEstadoPago
 `
 
@@ -117,7 +129,7 @@ type GetAllFacturaRow struct {
 	Preciototal        string       `json:"preciototal"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
-	Cantidadpersonas   int32        `json:"cantidadpersonas"`
+	Cantidadpersonas   int64        `json:"cantidadpersonas"`
 	Clientenombre      string       `json:"clientenombre"`
 	Clientetelefono    string       `json:"clientetelefono"`
 	Tournombre         string       `json:"tournombre"`
@@ -166,7 +178,7 @@ func (q *Queries) GetAllFactura(ctx context.Context) ([]GetAllFacturaRow, error)
 }
 
 const getFacturaById = `-- name: GetFacturaById :one
-SELECT idfactura, idreserva, idestadopago, numerofactura, fechafactura, metodopago, moneda, fechapago, subtotal, impuesto, descuento, preciototal, fechacreacion, fechaactualizacion FROM Factura WHERE idFactura = ?
+SELECT idfactura, idreserva, idestadopago, numerofactura, fechafactura, metodopago, moneda, fechapago, subtotal, descuento, impuesto, preciototal, fechacreacion, fechaactualizacion FROM Factura WHERE idFactura = ?
 `
 
 func (q *Queries) GetFacturaById(ctx context.Context, idfactura int32) (Factura, error) {
@@ -182,8 +194,8 @@ func (q *Queries) GetFacturaById(ctx context.Context, idfactura int32) (Factura,
 		&i.Moneda,
 		&i.Fechapago,
 		&i.Subtotal,
-		&i.Impuesto,
 		&i.Descuento,
+		&i.Impuesto,
 		&i.Preciototal,
 		&i.Fechacreacion,
 		&i.Fechaactualizacion,

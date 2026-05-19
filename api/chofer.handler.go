@@ -10,22 +10,24 @@ import (
 )
 
 type createChoferRequest struct {
-	Nombre       string    `json:"nombre"        binding:"required"`
-	FechaNac     string    `json:"fechaNac"      binding:"required"`
-	Telefono     string    `json:"telefono"      binding:"required"`
-	Email        string    `json:"email"         binding:"required"`
-	TipoLicencia string    `json:"tipoLicencia"  binding:"required"`
-	Nacionalidad string    `json:"nacionalidad"  binding:"required"`
+	Nombre        string `json:"nombre"        binding:"required"`
+	Identificador string `json:"identificador" binding:"required"`
+	FechaNac      string `json:"fechaNac"      binding:"required"`
+	Telefono      string `json:"telefono"      binding:"required"`
+	Email         string `json:"email"         binding:"required"`
+	TipoLicencia  string `json:"tipoLicencia"  binding:"required"`
+	Nacionalidad  string `json:"nacionalidad"  binding:"required"`
 }
 
 type updateChoferRequest struct {
-	IdChofer     int32     `json:"idChofer"      binding:"required"`
-	Nombre       string    `json:"nombre"        binding:"required"`
-	FechaNac     string    `json:"fechaNac"      binding:"required"`
-	Telefono     string    `json:"telefono"      binding:"required"`
-	Email        string    `json:"email"         binding:"required"`
-	TipoLicencia string    `json:"tipoLicencia"  binding:"required"`
-	Nacionalidad string    `json:"nacionalidad"  binding:"required"`
+	IdChofer      int32  `json:"idChofer"      binding:"required"`
+	Nombre        string `json:"nombre"        binding:"required"`
+	Identificador string `json:"identificador" binding:"required"`
+	FechaNac      string `json:"fechaNac"      binding:"required"`
+	Telefono      string `json:"telefono"      binding:"required"`
+	Email         string `json:"email"         binding:"required"`
+	TipoLicencia  string `json:"tipoLicencia"  binding:"required"`
+	Nacionalidad  string `json:"nacionalidad"  binding:"required"`
 }
 
 func (server *Server) createChofer(ctx *gin.Context) {
@@ -36,16 +38,17 @@ func (server *Server) createChofer(ctx *gin.Context) {
 	}
 	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
 	if err != nil {
-    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-    return
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 	args := dto.CreateChoferParams{
-		Nombre:       req.Nombre,
-		Fechanac:     fechaNac,
-		Telefono:     req.Telefono,
-		Email:        req.Email,
-		Tipolicencia: req.TipoLicencia,
-		Nacionalidad: req.Nacionalidad,
+		Nombre:        req.Nombre,
+		Identificador: req.Identificador,
+		Fechanac:      fechaNac,
+		Telefono:      req.Telefono,
+		Email:         req.Email,
+		Tipolicencia:  req.TipoLicencia,
+		Nacionalidad:  req.Nacionalidad,
 	}
 	chofer, err := server.dbtx.CreateChofer(ctx, args)
 	if err != nil {
@@ -92,18 +95,19 @@ func (server *Server) updateChofer(ctx *gin.Context) {
 	}
 	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
 	if err != nil {
-    ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-    return
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	args := dto.UpdateChoferParams{
-		Nombre:       req.Nombre,
-		Fechanac:     fechaNac,
-		Telefono:     req.Telefono,
-		Email:        req.Email,
-		Tipolicencia: req.TipoLicencia,
-		Nacionalidad: req.Nacionalidad,
-		Idchofer:     req.IdChofer,
+		Nombre:        req.Nombre,
+		Identificador: req.Identificador,
+		Fechanac:      fechaNac,
+		Telefono:      req.Telefono,
+		Email:         req.Email,
+		Tipolicencia:  req.TipoLicencia,
+		Nacionalidad:  req.Nacionalidad,
+		Idchofer:      req.IdChofer,
 	}
 
 	_, err = server.dbtx.UpdateChofer(ctx, args)

@@ -13,45 +13,15 @@ import (
 
 const createReserva = `-- name: CreateReserva :execresult
 INSERT INTO Reserva (
-    idCliente,
-    idTour,
-    idGuia,
-    idTransporte,
-    idUbicacion,
-    idIdioma,
     idEstadoReserva,
-    cantidadPersonas,
-    fechaTour,
     fechaCreacion,
     fechaActualizacion
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())
+VALUES (?, now(), now())
 `
 
-type CreateReservaParams struct {
-	Idcliente        int32     `json:"idcliente"`
-	Idtour           int32     `json:"idtour"`
-	Idguia           int32     `json:"idguia"`
-	Idtransporte     int32     `json:"idtransporte"`
-	Idubicacion      int32     `json:"idubicacion"`
-	Ididioma         int32     `json:"ididioma"`
-	Idestadoreserva  int32     `json:"idestadoreserva"`
-	Cantidadpersonas int32     `json:"cantidadpersonas"`
-	Fechatour        time.Time `json:"fechatour"`
-}
-
-func (q *Queries) CreateReserva(ctx context.Context, arg CreateReservaParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createReserva,
-		arg.Idcliente,
-		arg.Idtour,
-		arg.Idguia,
-		arg.Idtransporte,
-		arg.Idubicacion,
-		arg.Ididioma,
-		arg.Idestadoreserva,
-		arg.Cantidadpersonas,
-		arg.Fechatour,
-	)
+func (q *Queries) CreateReserva(ctx context.Context, idestadoreserva int32) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createReserva, idestadoreserva)
 }
 
 const deleteReserva = `-- name: DeleteReserva :execresult
@@ -65,69 +35,83 @@ func (q *Queries) DeleteReserva(ctx context.Context, idreserva int32) (sql.Resul
 const getAllReserva = `-- name: GetAllReserva :many
 SELECT 
     r.idReserva,
-    r.cantidadPersonas,
-    r.fechaTour,
+    COUNT(p.idParticipante)         AS cantidadPersonas,
+    dr.fechaTour,
     r.fechaCreacion,
     r.fechaActualizacion,
- 
-    -- Cliente
-    c.nombre AS clienteNombre,
-    c.telefono AS clienteTelefono,
- 
+
+    -- Clientes (múltiples por reserva)
+    GROUP_CONCAT(DISTINCT c.nombre SEPARATOR ', ')   AS clienteNombres,
+    GROUP_CONCAT(DISTINCT c.telefono SEPARATOR ', ')  AS clienteTelefonos,
+
     -- Tour
-    t.nombre AS tourNombre,
+    t.nombre    AS tourNombre,
     t.horario,
     t.duracion,
- 
+
     -- Guia
-    g.nombre AS guiaNombre,
-    g.telefono AS guiaTelefono,
- 
-    -- Chofer (desde Transporte)
-    ch.nombre AS choferNombre,
+    g.nombre    AS guiaNombre,
+    g.telefono  AS guiaTelefono,
+
+    -- Chofer (directo desde DetalleReserva)
+    ch.nombre   AS choferNombre,
     ch.telefono AS choferTelefono,
- 
+
     -- Ubicacion
-    u.nombre AS ubicacionNombre,
+    u.nombre    AS ubicacionNombre,
     u.direccion,
- 
+
     -- Idioma
-    i.nombre AS idiomaNombre,
- 
+    i.nombre    AS idiomaNombre,
+
     -- Estado Reserva
-    e.nombre AS nombreEstado
- 
+    e.nombre    AS nombreEstado
+
 FROM Reserva r
- 
-JOIN Cliente c ON r.idCliente = c.idCliente
-JOIN Tour t ON r.idTour = t.idTour
-JOIN Guia g ON r.idGuia = g.idGuia
-JOIN Transporte tr ON r.idTransporte = tr.idTransporte
-JOIN Chofer ch ON tr.idChofer = ch.idChofer
-JOIN Ubicacion u ON r.idUbicacion = u.idUbicacion
-JOIN Idioma i ON r.idIdioma = i.idIdioma
-JOIN EstadoReserva e ON r.idEstadoReserva = e.idEstadoReserva
+
+JOIN DetalleReserva dr  ON r.idReserva       = dr.idReserva
+JOIN Tour t             ON dr.idTour         = t.idTour
+JOIN Guia g             ON dr.idGuia         = g.idGuia
+JOIN Chofer ch          ON dr.idChofer       = ch.idChofer
+JOIN Ubicacion u        ON dr.idUbicacion    = u.idUbicacion
+JOIN Idioma i           ON dr.idIdioma       = i.idIdioma
+JOIN EstadoReserva e    ON r.idEstadoReserva = e.idEstadoReserva
+LEFT JOIN Participante p ON r.idReserva      = p.idReserva
+LEFT JOIN Cliente c      ON p.idCliente      = c.idCliente
+
+GROUP BY
+    r.idReserva,
+    dr.idDetalleReserva,
+    dr.fechaTour,
+    r.fechaCreacion,
+    r.fechaActualizacion,
+    t.nombre, t.horario, t.duracion,
+    g.nombre, g.telefono,
+    ch.nombre, ch.telefono,
+    u.nombre, u.direccion,
+    i.nombre,
+    e.nombre
 `
 
 type GetAllReservaRow struct {
-	Idreserva          int32        `json:"idreserva"`
-	Cantidadpersonas   int32        `json:"cantidadpersonas"`
-	Fechatour          time.Time    `json:"fechatour"`
-	Fechacreacion      sql.NullTime `json:"fechacreacion"`
-	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
-	Clientenombre      string       `json:"clientenombre"`
-	Clientetelefono    string       `json:"clientetelefono"`
-	Tournombre         string       `json:"tournombre"`
-	Horario            string       `json:"horario"`
-	Duracion           int32        `json:"duracion"`
-	Guianombre         string       `json:"guianombre"`
-	Guiatelefono       string       `json:"guiatelefono"`
-	Chofernombre       string       `json:"chofernombre"`
-	Chofertelefono     string       `json:"chofertelefono"`
-	Ubicacionnombre    string       `json:"ubicacionnombre"`
-	Direccion          string       `json:"direccion"`
-	Idiomanombre       string       `json:"idiomanombre"`
-	Nombreestado       string       `json:"nombreestado"`
+	Idreserva          int32          `json:"idreserva"`
+	Cantidadpersonas   int64          `json:"cantidadpersonas"`
+	Fechatour          time.Time      `json:"fechatour"`
+	Fechacreacion      sql.NullTime   `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime   `json:"fechaactualizacion"`
+	Clientenombres     sql.NullString `json:"clientenombres"`
+	Clientetelefonos   sql.NullString `json:"clientetelefonos"`
+	Tournombre         string         `json:"tournombre"`
+	Horario            string         `json:"horario"`
+	Duracion           int32          `json:"duracion"`
+	Guianombre         string         `json:"guianombre"`
+	Guiatelefono       string         `json:"guiatelefono"`
+	Chofernombre       string         `json:"chofernombre"`
+	Chofertelefono     string         `json:"chofertelefono"`
+	Ubicacionnombre    string         `json:"ubicacionnombre"`
+	Direccion          string         `json:"direccion"`
+	Idiomanombre       string         `json:"idiomanombre"`
+	Nombreestado       string         `json:"nombreestado"`
 }
 
 func (q *Queries) GetAllReserva(ctx context.Context) ([]GetAllReservaRow, error) {
@@ -145,8 +129,8 @@ func (q *Queries) GetAllReserva(ctx context.Context) ([]GetAllReservaRow, error)
 			&i.Fechatour,
 			&i.Fechacreacion,
 			&i.Fechaactualizacion,
-			&i.Clientenombre,
-			&i.Clientetelefono,
+			&i.Clientenombres,
+			&i.Clientetelefonos,
 			&i.Tournombre,
 			&i.Horario,
 			&i.Duracion,
@@ -173,68 +157,119 @@ func (q *Queries) GetAllReserva(ctx context.Context) ([]GetAllReservaRow, error)
 }
 
 const getReservaById = `-- name: GetReservaById :one
-SELECT idreserva, idcliente, idtour, idguia, idtransporte, idubicacion, ididioma, idestadoreserva, cantidadpersonas, fechatour, fechacreacion, fechaactualizacion FROM Reserva WHERE idReserva = ?
+SELECT 
+    r.idReserva,
+    COUNT(p.idParticipante)         AS cantidadPersonas,
+    dr.fechaTour,
+    r.fechaCreacion,
+    r.fechaActualizacion,
+
+    GROUP_CONCAT(DISTINCT c.nombre SEPARATOR ', ')   AS clienteNombres,
+    GROUP_CONCAT(DISTINCT c.telefono SEPARATOR ', ')  AS clienteTelefonos,
+
+    t.nombre    AS tourNombre,
+    t.horario,
+    t.duracion,
+
+    g.nombre    AS guiaNombre,
+    g.telefono  AS guiaTelefono,
+
+    ch.nombre   AS choferNombre,
+    ch.telefono AS choferTelefono,
+
+    u.nombre    AS ubicacionNombre,
+    u.direccion,
+
+    i.nombre    AS idiomaNombre,
+    e.nombre    AS nombreEstado
+
+FROM Reserva r
+
+JOIN DetalleReserva dr  ON r.idReserva       = dr.idReserva
+JOIN Tour t             ON dr.idTour         = t.idTour
+JOIN Guia g             ON dr.idGuia         = g.idGuia
+JOIN Chofer ch          ON dr.idChofer       = ch.idChofer
+JOIN Ubicacion u        ON dr.idUbicacion    = u.idUbicacion
+JOIN Idioma i           ON dr.idIdioma       = i.idIdioma
+JOIN EstadoReserva e    ON r.idEstadoReserva = e.idEstadoReserva
+LEFT JOIN Participante p ON r.idReserva      = p.idReserva
+LEFT JOIN Cliente c      ON p.idCliente      = c.idCliente
+
+WHERE r.idReserva = ?
+
+GROUP BY
+    r.idReserva,
+    dr.idDetalleReserva,
+    dr.fechaTour,
+    r.fechaCreacion,
+    r.fechaActualizacion,
+    t.nombre, t.horario, t.duracion,
+    g.nombre, g.telefono,
+    ch.nombre, ch.telefono,
+    u.nombre, u.direccion,
+    i.nombre,
+    e.nombre
 `
 
-func (q *Queries) GetReservaById(ctx context.Context, idreserva int32) (Reserva, error) {
+type GetReservaByIdRow struct {
+	Idreserva          int32          `json:"idreserva"`
+	Cantidadpersonas   int64          `json:"cantidadpersonas"`
+	Fechatour          time.Time      `json:"fechatour"`
+	Fechacreacion      sql.NullTime   `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime   `json:"fechaactualizacion"`
+	Clientenombres     sql.NullString `json:"clientenombres"`
+	Clientetelefonos   sql.NullString `json:"clientetelefonos"`
+	Tournombre         string         `json:"tournombre"`
+	Horario            string         `json:"horario"`
+	Duracion           int32          `json:"duracion"`
+	Guianombre         string         `json:"guianombre"`
+	Guiatelefono       string         `json:"guiatelefono"`
+	Chofernombre       string         `json:"chofernombre"`
+	Chofertelefono     string         `json:"chofertelefono"`
+	Ubicacionnombre    string         `json:"ubicacionnombre"`
+	Direccion          string         `json:"direccion"`
+	Idiomanombre       string         `json:"idiomanombre"`
+	Nombreestado       string         `json:"nombreestado"`
+}
+
+func (q *Queries) GetReservaById(ctx context.Context, idreserva int32) (GetReservaByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getReservaById, idreserva)
-	var i Reserva
+	var i GetReservaByIdRow
 	err := row.Scan(
 		&i.Idreserva,
-		&i.Idcliente,
-		&i.Idtour,
-		&i.Idguia,
-		&i.Idtransporte,
-		&i.Idubicacion,
-		&i.Ididioma,
-		&i.Idestadoreserva,
 		&i.Cantidadpersonas,
 		&i.Fechatour,
 		&i.Fechacreacion,
 		&i.Fechaactualizacion,
+		&i.Clientenombres,
+		&i.Clientetelefonos,
+		&i.Tournombre,
+		&i.Horario,
+		&i.Duracion,
+		&i.Guianombre,
+		&i.Guiatelefono,
+		&i.Chofernombre,
+		&i.Chofertelefono,
+		&i.Ubicacionnombre,
+		&i.Direccion,
+		&i.Idiomanombre,
+		&i.Nombreestado,
 	)
 	return i, err
 }
 
 const updateReserva = `-- name: UpdateReserva :execresult
 UPDATE Reserva
-SET idCliente = ?,
-    idTour = ?,
-    idGuia = ?,
-    idTransporte = ?,
-    idUbicacion = ?,
-    idIdioma = ?,
-    idEstadoReserva = ?,
-    cantidadPersonas = ?,
-    fechaTour = ?,
+SET idEstadoReserva    = ?,
     fechaActualizacion = now()
 WHERE idReserva = ?
 `
 
 type UpdateReservaParams struct {
-	Idcliente        int32     `json:"idcliente"`
-	Idtour           int32     `json:"idtour"`
-	Idguia           int32     `json:"idguia"`
-	Idtransporte     int32     `json:"idtransporte"`
-	Idubicacion      int32     `json:"idubicacion"`
-	Ididioma         int32     `json:"ididioma"`
-	Idestadoreserva  int32     `json:"idestadoreserva"`
-	Cantidadpersonas int32     `json:"cantidadpersonas"`
-	Fechatour        time.Time `json:"fechatour"`
-	Idreserva        int32     `json:"idreserva"`
+	Idestadoreserva int32 `json:"idestadoreserva"`
+	Idreserva       int32 `json:"idreserva"`
 }
 
 func (q *Queries) UpdateReserva(ctx context.Context, arg UpdateReservaParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateReserva,
-		arg.Idcliente,
-		arg.Idtour,
-		arg.Idguia,
-		arg.Idtransporte,
-		arg.Idubicacion,
-		arg.Ididioma,
-		arg.Idestadoreserva,
-		arg.Cantidadpersonas,
-		arg.Fechatour,
-		arg.Idreserva,
-	)
+	return q.db.ExecContext(ctx, updateReserva, arg.Idestadoreserva, arg.Idreserva)
 }

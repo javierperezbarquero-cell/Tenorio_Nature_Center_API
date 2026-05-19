@@ -12,21 +12,23 @@ import (
 )
 
 const createGuia = `-- name: CreateGuia :execresult
-INSERT INTO Guia (nombre, fechaNac, telefono, nacionalidad, email, fechaCreacion, fechaActualizacion)
-VALUES (?, ?, ?, ?, ?, now(), now())
+INSERT INTO Guia (nombre, identificador, fechaNac, telefono, nacionalidad, email, fechaCreacion, fechaActualizacion)
+VALUES (?, ?, ?, ?, ?, ?, now(), now())
 `
 
 type CreateGuiaParams struct {
-	Nombre       string    `json:"nombre"`
-	Fechanac     time.Time `json:"fechanac"`
-	Telefono     string    `json:"telefono"`
-	Nacionalidad string    `json:"nacionalidad"`
-	Email        string    `json:"email"`
+	Nombre        string    `json:"nombre"`
+	Identificador string    `json:"identificador"`
+	Fechanac      time.Time `json:"fechanac"`
+	Telefono      string    `json:"telefono"`
+	Nacionalidad  string    `json:"nacionalidad"`
+	Email         string    `json:"email"`
 }
 
 func (q *Queries) CreateGuia(ctx context.Context, arg CreateGuiaParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createGuia,
 		arg.Nombre,
+		arg.Identificador,
 		arg.Fechanac,
 		arg.Telefono,
 		arg.Nacionalidad,
@@ -43,7 +45,7 @@ func (q *Queries) DeleteGuia(ctx context.Context, idguia int32) (sql.Result, err
 }
 
 const getAllGuia = `-- name: GetAllGuia :many
-SELECT idguia, nombre, fechanac, telefono, nacionalidad, email, fechacreacion, fechaactualizacion FROM Guia
+SELECT idguia, nombre, identificador, fechanac, telefono, nacionalidad, email, fechacreacion, fechaactualizacion FROM Guia
 `
 
 func (q *Queries) GetAllGuia(ctx context.Context) ([]Guium, error) {
@@ -58,6 +60,7 @@ func (q *Queries) GetAllGuia(ctx context.Context) ([]Guium, error) {
 		if err := rows.Scan(
 			&i.Idguia,
 			&i.Nombre,
+			&i.Identificador,
 			&i.Fechanac,
 			&i.Telefono,
 			&i.Nacionalidad,
@@ -79,7 +82,7 @@ func (q *Queries) GetAllGuia(ctx context.Context) ([]Guium, error) {
 }
 
 const getGuiaById = `-- name: GetGuiaById :one
-SELECT idguia, nombre, fechanac, telefono, nacionalidad, email, fechacreacion, fechaactualizacion FROM Guia WHERE idGuia = ?
+SELECT idguia, nombre, identificador, fechanac, telefono, nacionalidad, email, fechacreacion, fechaactualizacion FROM Guia WHERE idGuia = ?
 `
 
 func (q *Queries) GetGuiaById(ctx context.Context, idguia int32) (Guium, error) {
@@ -88,6 +91,7 @@ func (q *Queries) GetGuiaById(ctx context.Context, idguia int32) (Guium, error) 
 	err := row.Scan(
 		&i.Idguia,
 		&i.Nombre,
+		&i.Identificador,
 		&i.Fechanac,
 		&i.Telefono,
 		&i.Nacionalidad,
@@ -101,6 +105,7 @@ func (q *Queries) GetGuiaById(ctx context.Context, idguia int32) (Guium, error) 
 const updateGuia = `-- name: UpdateGuia :execresult
 UPDATE Guia 
 SET nombre = ?,  
+    identificador = ?,
     fechaNac = ?,  
     telefono = ?,
     nacionalidad = ?,
@@ -110,17 +115,19 @@ WHERE idGuia = ?
 `
 
 type UpdateGuiaParams struct {
-	Nombre       string    `json:"nombre"`
-	Fechanac     time.Time `json:"fechanac"`
-	Telefono     string    `json:"telefono"`
-	Nacionalidad string    `json:"nacionalidad"`
-	Email        string    `json:"email"`
-	Idguia       int32     `json:"idguia"`
+	Nombre        string    `json:"nombre"`
+	Identificador string    `json:"identificador"`
+	Fechanac      time.Time `json:"fechanac"`
+	Telefono      string    `json:"telefono"`
+	Nacionalidad  string    `json:"nacionalidad"`
+	Email         string    `json:"email"`
+	Idguia        int32     `json:"idguia"`
 }
 
 func (q *Queries) UpdateGuia(ctx context.Context, arg UpdateGuiaParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateGuia,
 		arg.Nombre,
+		arg.Identificador,
 		arg.Fechanac,
 		arg.Telefono,
 		arg.Nacionalidad,
