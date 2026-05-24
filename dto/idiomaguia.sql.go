@@ -11,7 +11,12 @@ import (
 )
 
 const createIdiomaGuia = `-- name: CreateIdiomaGuia :execresult
-INSERT INTO idiomaguia (idGuia, idIdioma, fechaCreacion, fechaActualizacion)
+INSERT INTO IdiomaGuia (
+    idGuia,
+    idIdioma,
+    fechaCreacion,
+    fechaActualizacion
+)
 VALUES (?, ?, now(), now())
 `
 
@@ -25,7 +30,7 @@ func (q *Queries) CreateIdiomaGuia(ctx context.Context, arg CreateIdiomaGuiaPara
 }
 
 const deleteIdiomaGuia = `-- name: DeleteIdiomaGuia :execresult
-DELETE FROM idiomaguia WHERE idIdiomaGuia = ?
+DELETE FROM IdiomaGuia WHERE idIdiomaGuia = ?
 `
 
 func (q *Queries) DeleteIdiomaGuia(ctx context.Context, ididiomaguia int32) (sql.Result, error) {
@@ -33,24 +38,115 @@ func (q *Queries) DeleteIdiomaGuia(ctx context.Context, ididiomaguia int32) (sql
 }
 
 const getAllIdiomaGuia = `-- name: GetAllIdiomaGuia :many
-SELECT ididiomaguia, idguia, ididioma, fechacreacion, fechaactualizacion FROM idiomaguia
+SELECT
+    ig.idIdiomaGuia,
+    ig.idGuia,
+    ig.idIdioma,
+    ig.fechaCreacion,
+    ig.fechaActualizacion,
+
+    -- Guia
+    g.nombre    AS guiaNombre,
+    g.telefono  AS guiaTelefono,
+    g.email     AS guiaEmail,
+
+    -- Idioma
+    i.nombre    AS idiomaNombre
+
+FROM IdiomaGuia ig
+
+JOIN Guia g     ON ig.idGuia   = g.idGuia
+JOIN Idioma i   ON ig.idIdioma = i.idIdioma
 `
 
-func (q *Queries) GetAllIdiomaGuia(ctx context.Context) ([]Idiomaguium, error) {
+type GetAllIdiomaGuiaRow struct {
+	Ididiomaguia       int32        `json:"ididiomaguia"`
+	Idguia             int32        `json:"idguia"`
+	Ididioma           int32        `json:"ididioma"`
+	Fechacreacion      sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
+	Guianombre         string       `json:"guianombre"`
+	Guiatelefono       string       `json:"guiatelefono"`
+	Guiaemail          string       `json:"guiaemail"`
+	Idiomanombre       string       `json:"idiomanombre"`
+}
+
+func (q *Queries) GetAllIdiomaGuia(ctx context.Context) ([]GetAllIdiomaGuiaRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllIdiomaGuia)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Idiomaguium
+	var items []GetAllIdiomaGuiaRow
 	for rows.Next() {
-		var i Idiomaguium
+		var i GetAllIdiomaGuiaRow
 		if err := rows.Scan(
 			&i.Ididiomaguia,
 			&i.Idguia,
 			&i.Ididioma,
 			&i.Fechacreacion,
 			&i.Fechaactualizacion,
+			&i.Guianombre,
+			&i.Guiatelefono,
+			&i.Guiaemail,
+			&i.Idiomanombre,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getIdiomaGuiaByGuia = `-- name: GetIdiomaGuiaByGuia :many
+SELECT
+    ig.idIdiomaGuia,
+    ig.idGuia,
+    ig.idIdioma,
+    ig.fechaCreacion,
+    ig.fechaActualizacion,
+
+    -- Solo Idioma, el guía ya se conoce por el filtro
+    i.nombre    AS idiomaNombre
+
+FROM IdiomaGuia ig
+
+JOIN Idioma i ON ig.idIdioma = i.idIdioma
+
+WHERE ig.idGuia = ?
+`
+
+type GetIdiomaGuiaByGuiaRow struct {
+	Ididiomaguia       int32        `json:"ididiomaguia"`
+	Idguia             int32        `json:"idguia"`
+	Ididioma           int32        `json:"ididioma"`
+	Fechacreacion      sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
+	Idiomanombre       string       `json:"idiomanombre"`
+}
+
+func (q *Queries) GetIdiomaGuiaByGuia(ctx context.Context, idguia int32) ([]GetIdiomaGuiaByGuiaRow, error) {
+	rows, err := q.db.QueryContext(ctx, getIdiomaGuiaByGuia, idguia)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetIdiomaGuiaByGuiaRow
+	for rows.Next() {
+		var i GetIdiomaGuiaByGuiaRow
+		if err := rows.Scan(
+			&i.Ididiomaguia,
+			&i.Idguia,
+			&i.Ididioma,
+			&i.Fechacreacion,
+			&i.Fechaactualizacion,
+			&i.Idiomanombre,
 		); err != nil {
 			return nil, err
 		}
@@ -66,36 +162,115 @@ func (q *Queries) GetAllIdiomaGuia(ctx context.Context) ([]Idiomaguium, error) {
 }
 
 const getIdiomaGuiaById = `-- name: GetIdiomaGuiaById :one
-SELECT ididiomaguia, idguia, ididioma, fechacreacion, fechaactualizacion FROM idiomaguia WHERE idIdiomaGuia = ?
+SELECT
+    ig.idIdiomaGuia,
+    ig.idGuia,
+    ig.idIdioma,
+    ig.fechaCreacion,
+    ig.fechaActualizacion,
+
+    g.nombre    AS guiaNombre,
+    g.telefono  AS guiaTelefono,
+    g.email     AS guiaEmail,
+
+    i.nombre    AS idiomaNombre
+
+FROM IdiomaGuia ig
+
+JOIN Guia g     ON ig.idGuia   = g.idGuia
+JOIN Idioma i   ON ig.idIdioma = i.idIdioma
+
+WHERE ig.idIdiomaGuia = ?
 `
 
-func (q *Queries) GetIdiomaGuiaById(ctx context.Context, ididiomaguia int32) (Idiomaguium, error) {
+type GetIdiomaGuiaByIdRow struct {
+	Ididiomaguia       int32        `json:"ididiomaguia"`
+	Idguia             int32        `json:"idguia"`
+	Ididioma           int32        `json:"ididioma"`
+	Fechacreacion      sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
+	Guianombre         string       `json:"guianombre"`
+	Guiatelefono       string       `json:"guiatelefono"`
+	Guiaemail          string       `json:"guiaemail"`
+	Idiomanombre       string       `json:"idiomanombre"`
+}
+
+func (q *Queries) GetIdiomaGuiaById(ctx context.Context, ididiomaguia int32) (GetIdiomaGuiaByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getIdiomaGuiaById, ididiomaguia)
-	var i Idiomaguium
+	var i GetIdiomaGuiaByIdRow
 	err := row.Scan(
 		&i.Ididiomaguia,
 		&i.Idguia,
 		&i.Ididioma,
 		&i.Fechacreacion,
 		&i.Fechaactualizacion,
+		&i.Guianombre,
+		&i.Guiatelefono,
+		&i.Guiaemail,
+		&i.Idiomanombre,
 	)
 	return i, err
 }
 
-const updateIdiomaGuia = `-- name: UpdateIdiomaGuia :execresult
-UPDATE idiomaguia 
-SET idGuia = ?, 
-    idIdioma = ?,
-    fechaActualizacion = now()
-WHERE idIdiomaGuia = ?
+const getIdiomaGuiaByIdioma = `-- name: GetIdiomaGuiaByIdioma :many
+SELECT
+    ig.idIdiomaGuia,
+    ig.idGuia,
+    ig.idIdioma,
+    ig.fechaCreacion,
+    ig.fechaActualizacion,
+
+    -- Solo Guia, el idioma ya se conoce por el filtro
+    g.nombre    AS guiaNombre,
+    g.telefono  AS guiaTelefono,
+    g.email     AS guiaEmail
+
+FROM IdiomaGuia ig
+
+JOIN Guia g ON ig.idGuia = g.idGuia
+
+WHERE ig.idIdioma = ?
 `
 
-type UpdateIdiomaGuiaParams struct {
-	Idguia       int32 `json:"idguia"`
-	Ididioma     int32 `json:"ididioma"`
-	Ididiomaguia int32 `json:"ididiomaguia"`
+type GetIdiomaGuiaByIdiomaRow struct {
+	Ididiomaguia       int32        `json:"ididiomaguia"`
+	Idguia             int32        `json:"idguia"`
+	Ididioma           int32        `json:"ididioma"`
+	Fechacreacion      sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
+	Guianombre         string       `json:"guianombre"`
+	Guiatelefono       string       `json:"guiatelefono"`
+	Guiaemail          string       `json:"guiaemail"`
 }
 
-func (q *Queries) UpdateIdiomaGuia(ctx context.Context, arg UpdateIdiomaGuiaParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateIdiomaGuia, arg.Idguia, arg.Ididioma, arg.Ididiomaguia)
+func (q *Queries) GetIdiomaGuiaByIdioma(ctx context.Context, ididioma int32) ([]GetIdiomaGuiaByIdiomaRow, error) {
+	rows, err := q.db.QueryContext(ctx, getIdiomaGuiaByIdioma, ididioma)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetIdiomaGuiaByIdiomaRow
+	for rows.Next() {
+		var i GetIdiomaGuiaByIdiomaRow
+		if err := rows.Scan(
+			&i.Ididiomaguia,
+			&i.Idguia,
+			&i.Ididioma,
+			&i.Fechacreacion,
+			&i.Fechaactualizacion,
+			&i.Guianombre,
+			&i.Guiatelefono,
+			&i.Guiaemail,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

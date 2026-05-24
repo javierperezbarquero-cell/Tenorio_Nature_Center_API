@@ -98,14 +98,7 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	authRoutes.POST("api/v1/idiomaguia", server.createIdiomaGuia)
 	authRoutes.GET("api/v1/idiomaguia", server.getAllIdiomaGuia)
 	authRoutes.GET("api/v1/idiomaguia/:id", server.getIdiomaGuiaById)
-	authRoutes.PUT("api/v1/idiomaguia", server.updateIdiomaGuia)
 	authRoutes.DELETE("api/v1/idiomaguia/:id", server.deleteIdiomaGuia)
-	//Transporte
-	authRoutes.POST("api/v1/transporte", server.createTransporte)
-	authRoutes.GET("api/v1/transporte", server.getAllTransporte)
-	authRoutes.GET("api/v1/transporte/:id", server.getTransporteById)
-	authRoutes.PUT("api/v1/transporte", server.updateTransporte)
-	authRoutes.DELETE("api/v1/transporte/:id", server.deleteTransporte)
 	// Estado Reserva
 	authRoutes.POST("api/v1/estadoreserva", server.createEstadoReserva)
 	authRoutes.GET("api/v1/estadoreserva", server.getAllEstadoReserva)
@@ -122,7 +115,6 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	authRoutes.POST("api/v1/participante", server.createParticipante)
 	authRoutes.GET("api/v1/participante", server.getAllParticipantes)
 	authRoutes.GET("api/v1/participante/:id", server.getParticipanteById)
-	authRoutes.PUT("api/v1/participante", server.updateParticipante)
 	authRoutes.DELETE("api/v1/participante/:id", server.deleteParticipante)
 	// Estado Pago
 	authRoutes.POST("api/v1/estadopago", server.createEstadoPago)
@@ -136,6 +128,18 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	authRoutes.GET("api/v1/factura/:id", server.getFacturaById)
 	authRoutes.PUT("api/v1/factura", server.updateFactura)
 	authRoutes.DELETE("api/v1/factura/:id", server.deleteFactura)
+	// Empresa Cliente
+	authRoutes.POST("api/v1/empresacliente", server.createEmpresaCliente)
+	authRoutes.GET("api/v1/empresacliente", server.getAllEmpresaCliente)
+	authRoutes.GET("api/v1/empresacliente/:id", server.getEmpresaClienteById)
+	authRoutes.PUT("api/v1/empresacliente", server.updateEmpresaCliente)
+	authRoutes.DELETE("api/v1/empresacliente/:id", server.deleteEmpresaCliente)
+	// Detalle Reserva
+	authRoutes.POST("api/v1/detallereserva", server.createDetalleReserva)
+	authRoutes.GET("api/v1/detallereserva", server.getAllDetalleReserva)
+	authRoutes.GET("api/v1/detallereserva/:id", server.getDetalleReservaById)
+	authRoutes.PUT("api/v1/detallereserva", server.updateDetalleReserva)
+	authRoutes.DELETE("api/v1/detallereserva/:id", server.deleteDetalleReserva)
 
 	server.router = router
 	return server, nil

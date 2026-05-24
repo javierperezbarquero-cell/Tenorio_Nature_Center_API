@@ -11,21 +11,26 @@ import (
 )
 
 const createEmailCliente = `-- name: CreateEmailCliente :execresult
-INSERT INTO emailcliente (email, idCliente, fechaCreacion, fechaActualizacion)
+INSERT INTO EmailCliente (
+    idCliente,
+    email,
+    fechaCreacion,
+    fechaActualizacion
+)
 VALUES (?, ?, now(), now())
 `
 
 type CreateEmailClienteParams struct {
-	Email     string `json:"email"`
 	Idcliente int32  `json:"idcliente"`
+	Email     string `json:"email"`
 }
 
 func (q *Queries) CreateEmailCliente(ctx context.Context, arg CreateEmailClienteParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createEmailCliente, arg.Email, arg.Idcliente)
+	return q.db.ExecContext(ctx, createEmailCliente, arg.Idcliente, arg.Email)
 }
 
 const deleteEmailCliente = `-- name: DeleteEmailCliente :execresult
-DELETE FROM emailcliente WHERE idEmailCliente = ?
+DELETE FROM EmailCliente WHERE idEmailCliente = ?
 `
 
 func (q *Queries) DeleteEmailCliente(ctx context.Context, idemailcliente int32) (sql.Result, error) {
@@ -33,11 +38,78 @@ func (q *Queries) DeleteEmailCliente(ctx context.Context, idemailcliente int32) 
 }
 
 const getAllEmailCliente = `-- name: GetAllEmailCliente :many
-SELECT idemailcliente, email, idcliente, fechacreacion, fechaactualizacion FROM emailcliente
+SELECT
+    ec.idEmailCliente,
+    ec.idCliente,
+    ec.email,
+    ec.fechaCreacion,
+    ec.fechaActualizacion,
+
+    -- Cliente
+    c.nombre        AS clienteNombre,
+    c.identificador AS clienteIdentificador
+
+FROM EmailCliente ec
+
+JOIN Cliente c ON ec.idCliente = c.idCliente
 `
 
-func (q *Queries) GetAllEmailCliente(ctx context.Context) ([]Emailcliente, error) {
+type GetAllEmailClienteRow struct {
+	Idemailcliente       int32        `json:"idemailcliente"`
+	Idcliente            int32        `json:"idcliente"`
+	Email                string       `json:"email"`
+	Fechacreacion        sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion   sql.NullTime `json:"fechaactualizacion"`
+	Clientenombre        string       `json:"clientenombre"`
+	Clienteidentificador string       `json:"clienteidentificador"`
+}
+
+func (q *Queries) GetAllEmailCliente(ctx context.Context) ([]GetAllEmailClienteRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllEmailCliente)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllEmailClienteRow
+	for rows.Next() {
+		var i GetAllEmailClienteRow
+		if err := rows.Scan(
+			&i.Idemailcliente,
+			&i.Idcliente,
+			&i.Email,
+			&i.Fechacreacion,
+			&i.Fechaactualizacion,
+			&i.Clientenombre,
+			&i.Clienteidentificador,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEmailClienteByCliente = `-- name: GetEmailClienteByCliente :many
+SELECT
+    ec.idEmailCliente,
+    ec.idCliente,
+    ec.email,
+    ec.fechaCreacion,
+    ec.fechaActualizacion
+
+FROM EmailCliente ec
+
+WHERE ec.idCliente = ?
+`
+
+func (q *Queries) GetEmailClienteByCliente(ctx context.Context, idcliente int32) ([]Emailcliente, error) {
+	rows, err := q.db.QueryContext(ctx, getEmailClienteByCliente, idcliente)
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +119,8 @@ func (q *Queries) GetAllEmailCliente(ctx context.Context) ([]Emailcliente, error
 		var i Emailcliente
 		if err := rows.Scan(
 			&i.Idemailcliente,
-			&i.Email,
 			&i.Idcliente,
+			&i.Email,
 			&i.Fechacreacion,
 			&i.Fechaactualizacion,
 		); err != nil {
@@ -66,36 +138,60 @@ func (q *Queries) GetAllEmailCliente(ctx context.Context) ([]Emailcliente, error
 }
 
 const getEmailClienteById = `-- name: GetEmailClienteById :one
-SELECT idemailcliente, email, idcliente, fechacreacion, fechaactualizacion FROM emailcliente WHERE idEmailCliente = ?
+SELECT
+    ec.idEmailCliente,
+    ec.idCliente,
+    ec.email,
+    ec.fechaCreacion,
+    ec.fechaActualizacion,
+
+    c.nombre        AS clienteNombre,
+    c.identificador AS clienteIdentificador
+
+FROM EmailCliente ec
+
+JOIN Cliente c ON ec.idCliente = c.idCliente
+
+WHERE ec.idEmailCliente = ?
 `
 
-func (q *Queries) GetEmailClienteById(ctx context.Context, idemailcliente int32) (Emailcliente, error) {
+type GetEmailClienteByIdRow struct {
+	Idemailcliente       int32        `json:"idemailcliente"`
+	Idcliente            int32        `json:"idcliente"`
+	Email                string       `json:"email"`
+	Fechacreacion        sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion   sql.NullTime `json:"fechaactualizacion"`
+	Clientenombre        string       `json:"clientenombre"`
+	Clienteidentificador string       `json:"clienteidentificador"`
+}
+
+func (q *Queries) GetEmailClienteById(ctx context.Context, idemailcliente int32) (GetEmailClienteByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getEmailClienteById, idemailcliente)
-	var i Emailcliente
+	var i GetEmailClienteByIdRow
 	err := row.Scan(
 		&i.Idemailcliente,
-		&i.Email,
 		&i.Idcliente,
+		&i.Email,
 		&i.Fechacreacion,
 		&i.Fechaactualizacion,
+		&i.Clientenombre,
+		&i.Clienteidentificador,
 	)
 	return i, err
 }
 
 const updateEmailCliente = `-- name: UpdateEmailCliente :execresult
-UPDATE emailcliente 
-SET email = ?, 
-    idCliente = ?,
+UPDATE EmailCliente
+SET email              = ?,
     fechaActualizacion = now()
 WHERE idEmailCliente = ?
 `
 
 type UpdateEmailClienteParams struct {
 	Email          string `json:"email"`
-	Idcliente      int32  `json:"idcliente"`
 	Idemailcliente int32  `json:"idemailcliente"`
 }
 
 func (q *Queries) UpdateEmailCliente(ctx context.Context, arg UpdateEmailClienteParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateEmailCliente, arg.Email, arg.Idcliente, arg.Idemailcliente)
+	return q.db.ExecContext(ctx, updateEmailCliente, arg.Email, arg.Idemailcliente)
 }

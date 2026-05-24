@@ -12,6 +12,7 @@ import (
 type Chofer struct {
 	Idchofer           int32        `json:"idchofer"`
 	Nombre             string       `json:"nombre"`
+	Identificador      string       `json:"identificador"`
 	Fechanac           time.Time    `json:"fechanac"`
 	Telefono           string       `json:"telefono"`
 	Email              string       `json:"email"`
@@ -22,21 +23,48 @@ type Chofer struct {
 }
 
 type Cliente struct {
-	Idcliente          int32        `json:"idcliente"`
-	Nombre             string       `json:"nombre"`
-	Telefono           string       `json:"telefono"`
-	Nacionalidad       string       `json:"nacionalidad"`
-	Fecharegistro      time.Time    `json:"fecharegistro"`
+	Idcliente          int32         `json:"idcliente"`
+	Idempresacliente   sql.NullInt32 `json:"idempresacliente"`
+	Nombre             string        `json:"nombre"`
+	Identificador      string        `json:"identificador"`
+	Fechanac           time.Time     `json:"fechanac"`
+	Telefono           string        `json:"telefono"`
+	Nacionalidad       string        `json:"nacionalidad"`
+	Fecharegistro      time.Time     `json:"fecharegistro"`
+	Fechacreacion      sql.NullTime  `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime  `json:"fechaactualizacion"`
+}
+
+type Detallereserva struct {
+	Iddetallereserva   int32        `json:"iddetallereserva"`
+	Idreserva          int32        `json:"idreserva"`
+	Idtour             int32        `json:"idtour"`
+	Idguia             int32        `json:"idguia"`
+	Idchofer           int32        `json:"idchofer"`
+	Idubicacion        int32        `json:"idubicacion"`
+	Ididioma           int32        `json:"ididioma"`
+	Fechatour          time.Time    `json:"fechatour"`
+	Preciounitario     string       `json:"preciounitario"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
 }
 
 type Emailcliente struct {
 	Idemailcliente     int32        `json:"idemailcliente"`
-	Email              string       `json:"email"`
 	Idcliente          int32        `json:"idcliente"`
+	Email              string       `json:"email"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
+}
+
+type Empresacliente struct {
+	Idempresacliente   int32          `json:"idempresacliente"`
+	Razonsocial        string         `json:"razonsocial"`
+	Cedulajuridica     string         `json:"cedulajuridica"`
+	Telefono           sql.NullString `json:"telefono"`
+	Email              string         `json:"email"`
+	Fechacreacion      sql.NullTime   `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime   `json:"fechaactualizacion"`
 }
 
 type Estadopago struct {
@@ -57,7 +85,7 @@ type Estadoreserva struct {
 
 type Factura struct {
 	Idfactura          int32        `json:"idfactura"`
-	Idreserva          int32        `json:"idreserva"`
+	Idparticipante     int32        `json:"idparticipante"`
 	Idestadopago       int32        `json:"idestadopago"`
 	Numerofactura      string       `json:"numerofactura"`
 	Fechafactura       time.Time    `json:"fechafactura"`
@@ -65,8 +93,8 @@ type Factura struct {
 	Moneda             string       `json:"moneda"`
 	Fechapago          sql.NullTime `json:"fechapago"`
 	Subtotal           string       `json:"subtotal"`
-	Impuesto           string       `json:"impuesto"`
 	Descuento          string       `json:"descuento"`
+	Impuesto           string       `json:"impuesto"`
 	Preciototal        string       `json:"preciototal"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
@@ -75,6 +103,7 @@ type Factura struct {
 type Guium struct {
 	Idguia             int32        `json:"idguia"`
 	Nombre             string       `json:"nombre"`
+	Identificador      string       `json:"identificador"`
 	Fechanac           time.Time    `json:"fechanac"`
 	Telefono           string       `json:"telefono"`
 	Nacionalidad       string       `json:"nacionalidad"`
@@ -100,26 +129,15 @@ type Idiomaguium struct {
 
 type Participante struct {
 	Idparticipante     int32        `json:"idparticipante"`
+	Idcliente          int32        `json:"idcliente"`
 	Idreserva          int32        `json:"idreserva"`
-	Nombre             string       `json:"nombre"`
-	Fechanac           time.Time    `json:"fechanac"`
-	Nacionalidad       string       `json:"nacionalidad"`
-	Telefono           string       `json:"telefono"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
 }
 
 type Reserva struct {
 	Idreserva          int32        `json:"idreserva"`
-	Idcliente          int32        `json:"idcliente"`
-	Idtour             int32        `json:"idtour"`
-	Idguia             int32        `json:"idguia"`
-	Idtransporte       int32        `json:"idtransporte"`
-	Idubicacion        int32        `json:"idubicacion"`
-	Ididioma           int32        `json:"ididioma"`
 	Idestadoreserva    int32        `json:"idestadoreserva"`
-	Cantidadpersonas   int32        `json:"cantidadpersonas"`
-	Fechatour          time.Time    `json:"fechatour"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
 }
@@ -132,13 +150,6 @@ type Tour struct {
 	Duracion           int32        `json:"duracion"`
 	Cuposmaximos       int32        `json:"cuposmaximos"`
 	Preciobase         string       `json:"preciobase"`
-	Fechacreacion      sql.NullTime `json:"fechacreacion"`
-	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
-}
-
-type Transporte struct {
-	Idtransporte       int32        `json:"idtransporte"`
-	Idchofer           int32        `json:"idchofer"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
 }

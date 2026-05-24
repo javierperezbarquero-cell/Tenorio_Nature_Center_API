@@ -12,22 +12,24 @@ import (
 )
 
 const createChofer = `-- name: CreateChofer :execresult
-INSERT INTO chofer (nombre, fechaNac, telefono, email, tipoLicencia, nacionalidad, fechaCreacion, fechaActualizacion)
-VALUES (?, ?, ?, ?, ?, ?, now(), now())
+INSERT INTO chofer (nombre, identificador, fechaNac, telefono, email, tipoLicencia, nacionalidad, fechaCreacion, fechaActualizacion)
+VALUES (?, ?, ?, ?, ?, ?, ?, now(), now())
 `
 
 type CreateChoferParams struct {
-	Nombre       string    `json:"nombre"`
-	Fechanac     time.Time `json:"fechanac"`
-	Telefono     string    `json:"telefono"`
-	Email        string    `json:"email"`
-	Tipolicencia string    `json:"tipolicencia"`
-	Nacionalidad string    `json:"nacionalidad"`
+	Nombre        string    `json:"nombre"`
+	Identificador string    `json:"identificador"`
+	Fechanac      time.Time `json:"fechanac"`
+	Telefono      string    `json:"telefono"`
+	Email         string    `json:"email"`
+	Tipolicencia  string    `json:"tipolicencia"`
+	Nacionalidad  string    `json:"nacionalidad"`
 }
 
 func (q *Queries) CreateChofer(ctx context.Context, arg CreateChoferParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createChofer,
 		arg.Nombre,
+		arg.Identificador,
 		arg.Fechanac,
 		arg.Telefono,
 		arg.Email,
@@ -45,7 +47,7 @@ func (q *Queries) DeleteChofer(ctx context.Context, idchofer int32) (sql.Result,
 }
 
 const getAllChofer = `-- name: GetAllChofer :many
-SELECT idchofer, nombre, fechanac, telefono, email, tipolicencia, nacionalidad, fechacreacion, fechaactualizacion FROM chofer
+SELECT idchofer, nombre, identificador, fechanac, telefono, email, tipolicencia, nacionalidad, fechacreacion, fechaactualizacion FROM chofer
 `
 
 func (q *Queries) GetAllChofer(ctx context.Context) ([]Chofer, error) {
@@ -60,6 +62,7 @@ func (q *Queries) GetAllChofer(ctx context.Context) ([]Chofer, error) {
 		if err := rows.Scan(
 			&i.Idchofer,
 			&i.Nombre,
+			&i.Identificador,
 			&i.Fechanac,
 			&i.Telefono,
 			&i.Email,
@@ -82,7 +85,7 @@ func (q *Queries) GetAllChofer(ctx context.Context) ([]Chofer, error) {
 }
 
 const getChoferById = `-- name: GetChoferById :one
-SELECT idchofer, nombre, fechanac, telefono, email, tipolicencia, nacionalidad, fechacreacion, fechaactualizacion FROM chofer WHERE idChofer = ?
+SELECT idchofer, nombre, identificador, fechanac, telefono, email, tipolicencia, nacionalidad, fechacreacion, fechaactualizacion FROM chofer WHERE idChofer = ?
 `
 
 func (q *Queries) GetChoferById(ctx context.Context, idchofer int32) (Chofer, error) {
@@ -91,6 +94,7 @@ func (q *Queries) GetChoferById(ctx context.Context, idchofer int32) (Chofer, er
 	err := row.Scan(
 		&i.Idchofer,
 		&i.Nombre,
+		&i.Identificador,
 		&i.Fechanac,
 		&i.Telefono,
 		&i.Email,
@@ -105,6 +109,7 @@ func (q *Queries) GetChoferById(ctx context.Context, idchofer int32) (Chofer, er
 const updateChofer = `-- name: UpdateChofer :execresult
 UPDATE chofer 
 SET nombre = ?, 
+    identificador = ?,
     fechaNac = ?, 
     telefono = ?, 
     email = ?, 
@@ -115,18 +120,20 @@ WHERE idChofer = ?
 `
 
 type UpdateChoferParams struct {
-	Nombre       string    `json:"nombre"`
-	Fechanac     time.Time `json:"fechanac"`
-	Telefono     string    `json:"telefono"`
-	Email        string    `json:"email"`
-	Tipolicencia string    `json:"tipolicencia"`
-	Nacionalidad string    `json:"nacionalidad"`
-	Idchofer     int32     `json:"idchofer"`
+	Nombre        string    `json:"nombre"`
+	Identificador string    `json:"identificador"`
+	Fechanac      time.Time `json:"fechanac"`
+	Telefono      string    `json:"telefono"`
+	Email         string    `json:"email"`
+	Tipolicencia  string    `json:"tipolicencia"`
+	Nacionalidad  string    `json:"nacionalidad"`
+	Idchofer      int32     `json:"idchofer"`
 }
 
 func (q *Queries) UpdateChofer(ctx context.Context, arg UpdateChoferParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateChofer,
 		arg.Nombre,
+		arg.Identificador,
 		arg.Fechanac,
 		arg.Telefono,
 		arg.Email,

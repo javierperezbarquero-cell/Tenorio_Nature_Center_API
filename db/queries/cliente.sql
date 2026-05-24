@@ -5,12 +5,15 @@ SELECT * FROM Cliente;
 SELECT * FROM Cliente WHERE idCliente = ?;
 
 -- name: CreateCliente :execresult
-INSERT INTO Cliente (nombre, telefono, nacionalidad, fechaRegistro, fechaCreacion, fechaActualizacion)
-VALUES (?, ?, ?, ?, now(), now());
+INSERT INTO Cliente (idEmpresaCliente, nombre, identificador, fechaNac, telefono, nacionalidad, fechaRegistro, fechaCreacion, fechaActualizacion)
+VALUES (?, ?, ?, ?, ?, ?, ?, now(), now());
 
 -- name: UpdateCliente :execresult
 UPDATE Cliente 
-SET nombre = ?, 
+SET idEmpresaCliente = ?,
+    nombre = ?,
+    identificador = ?,
+    fechaNac = ?,
     telefono = ?, 
     nacionalidad = ?,
     fechaRegistro = ?, 

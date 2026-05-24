@@ -71,3 +71,17 @@ func parsearFechaNullable(valor string, campo string) (sql.NullTime, error) {
     }
     return sql.NullTime{Time: fecha, Valid: true}, nil
 }
+
+func toNullInt32(v *int32) sql.NullInt32 {
+	if v == nil {
+		return sql.NullInt32{Valid: false}
+	}
+	return sql.NullInt32{Int32: *v, Valid: true}
+}
+
+func toNullString(v string) sql.NullString {
+	if v == "" {
+		return sql.NullString{Valid: false}
+	}
+	return sql.NullString{String: v, Valid: true}
+}
