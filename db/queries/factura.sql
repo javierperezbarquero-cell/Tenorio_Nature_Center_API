@@ -13,36 +13,28 @@ SELECT
     f.fechaCreacion,
     f.fechaActualizacion,
 
-    -- Cantidad de participantes calculada desde Participante
+    -- Cantidad de participantes de la reserva
     (SELECT COUNT(*) 
-     FROM Participante p 
-     WHERE p.idReserva = r.idReserva) AS cantidadPersonas,
+     FROM Participante p2 
+     WHERE p2.idReserva = p.idReserva) AS cantidadPersonas,
 
-    -- Cliente: primer participante de la reserva
-    (SELECT c.nombre 
-     FROM Participante p 
-     JOIN Cliente c ON c.idCliente = p.idCliente 
-     WHERE p.idReserva = r.idReserva 
-     LIMIT 1) AS clienteNombre,
-
-    (SELECT c.telefono 
-     FROM Participante p 
-     JOIN Cliente c ON c.idCliente = p.idCliente 
-     WHERE p.idReserva = r.idReserva 
-     LIMIT 1) AS clienteTelefono,
+    -- Cliente dueño de esta factura
+    c.nombre AS clienteNombre,
+    c.telefono AS clienteTelefono,
 
     -- Tour: primer detalle de la reserva
     (SELECT t.nombre 
      FROM DetalleReserva dr 
      JOIN Tour t ON t.idTour = dr.idTour 
-     WHERE dr.idReserva = r.idReserva 
+     WHERE dr.idReserva = p.idReserva 
      LIMIT 1) AS tourNombre,
 
     -- Estado Pago
     e.nombre AS nombreEstado
 
 FROM Factura f
-JOIN Reserva r ON f.idReserva = r.idReserva
+JOIN Participante p ON f.idParticipante = p.idParticipante
+JOIN Cliente c ON p.idCliente = c.idCliente
 JOIN EstadoPago e ON f.idEstadoPago = e.idEstadoPago;
 
 -- name: GetFacturaById :one
@@ -50,7 +42,7 @@ SELECT * FROM Factura WHERE idFactura = ?;
 
 -- name: CreateFactura :execresult
 INSERT INTO Factura (
-    idReserva,
+    idParticipante,
     idEstadoPago,
     numeroFactura,
     fechaFactura,
@@ -68,7 +60,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now());
 
 -- name: UpdateFactura :execresult
 UPDATE Factura
-SET idReserva = ?,
+SET idParticipante = ?,
     idEstadoPago = ?,
     numeroFactura = ?,
     fechaFactura = ?,

@@ -13,7 +13,7 @@ import (
 
 const createFactura = `-- name: CreateFactura :execresult
 INSERT INTO Factura (
-    idReserva,
+    idParticipante,
     idEstadoPago,
     numeroFactura,
     fechaFactura,
@@ -31,22 +31,22 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())
 `
 
 type CreateFacturaParams struct {
-	Idreserva     int32        `json:"idreserva"`
-	Idestadopago  int32        `json:"idestadopago"`
-	Numerofactura string       `json:"numerofactura"`
-	Fechafactura  time.Time    `json:"fechafactura"`
-	Metodopago    string       `json:"metodopago"`
-	Moneda        string       `json:"moneda"`
-	Fechapago     sql.NullTime `json:"fechapago"`
-	Subtotal      string       `json:"subtotal"`
-	Impuesto      string       `json:"impuesto"`
-	Descuento     string       `json:"descuento"`
-	Preciototal   string       `json:"preciototal"`
+	Idparticipante int32        `json:"idparticipante"`
+	Idestadopago   int32        `json:"idestadopago"`
+	Numerofactura  string       `json:"numerofactura"`
+	Fechafactura   time.Time    `json:"fechafactura"`
+	Metodopago     string       `json:"metodopago"`
+	Moneda         string       `json:"moneda"`
+	Fechapago      sql.NullTime `json:"fechapago"`
+	Subtotal       string       `json:"subtotal"`
+	Impuesto       string       `json:"impuesto"`
+	Descuento      string       `json:"descuento"`
+	Preciototal    string       `json:"preciototal"`
 }
 
 func (q *Queries) CreateFactura(ctx context.Context, arg CreateFacturaParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createFactura,
-		arg.Idreserva,
+		arg.Idparticipante,
 		arg.Idestadopago,
 		arg.Numerofactura,
 		arg.Fechafactura,
@@ -83,36 +83,28 @@ SELECT
     f.fechaCreacion,
     f.fechaActualizacion,
 
-    -- Cantidad de participantes calculada desde Participante
+    -- Cantidad de participantes de la reserva
     (SELECT COUNT(*) 
-     FROM Participante p 
-     WHERE p.idReserva = r.idReserva) AS cantidadPersonas,
+     FROM Participante p2 
+     WHERE p2.idReserva = p.idReserva) AS cantidadPersonas,
 
-    -- Cliente: primer participante de la reserva
-    (SELECT c.nombre 
-     FROM Participante p 
-     JOIN Cliente c ON c.idCliente = p.idCliente 
-     WHERE p.idReserva = r.idReserva 
-     LIMIT 1) AS clienteNombre,
-
-    (SELECT c.telefono 
-     FROM Participante p 
-     JOIN Cliente c ON c.idCliente = p.idCliente 
-     WHERE p.idReserva = r.idReserva 
-     LIMIT 1) AS clienteTelefono,
+    -- Cliente dueño de esta factura
+    c.nombre AS clienteNombre,
+    c.telefono AS clienteTelefono,
 
     -- Tour: primer detalle de la reserva
     (SELECT t.nombre 
      FROM DetalleReserva dr 
      JOIN Tour t ON t.idTour = dr.idTour 
-     WHERE dr.idReserva = r.idReserva 
+     WHERE dr.idReserva = p.idReserva 
      LIMIT 1) AS tourNombre,
 
     -- Estado Pago
     e.nombre AS nombreEstado
 
 FROM Factura f
-JOIN Reserva r ON f.idReserva = r.idReserva
+JOIN Participante p ON f.idParticipante = p.idParticipante
+JOIN Cliente c ON p.idCliente = c.idCliente
 JOIN EstadoPago e ON f.idEstadoPago = e.idEstadoPago
 `
 
@@ -178,7 +170,7 @@ func (q *Queries) GetAllFactura(ctx context.Context) ([]GetAllFacturaRow, error)
 }
 
 const getFacturaById = `-- name: GetFacturaById :one
-SELECT idfactura, idreserva, idestadopago, numerofactura, fechafactura, metodopago, moneda, fechapago, subtotal, descuento, impuesto, preciototal, fechacreacion, fechaactualizacion FROM Factura WHERE idFactura = ?
+SELECT idfactura, idparticipante, idestadopago, numerofactura, fechafactura, metodopago, moneda, fechapago, subtotal, descuento, impuesto, preciototal, fechacreacion, fechaactualizacion FROM Factura WHERE idFactura = ?
 `
 
 func (q *Queries) GetFacturaById(ctx context.Context, idfactura int32) (Factura, error) {
@@ -186,7 +178,7 @@ func (q *Queries) GetFacturaById(ctx context.Context, idfactura int32) (Factura,
 	var i Factura
 	err := row.Scan(
 		&i.Idfactura,
-		&i.Idreserva,
+		&i.Idparticipante,
 		&i.Idestadopago,
 		&i.Numerofactura,
 		&i.Fechafactura,
@@ -205,7 +197,7 @@ func (q *Queries) GetFacturaById(ctx context.Context, idfactura int32) (Factura,
 
 const updateFactura = `-- name: UpdateFactura :execresult
 UPDATE Factura
-SET idReserva = ?,
+SET idParticipante = ?,
     idEstadoPago = ?,
     numeroFactura = ?,
     fechaFactura = ?,
@@ -221,23 +213,23 @@ WHERE idFactura = ?
 `
 
 type UpdateFacturaParams struct {
-	Idreserva     int32        `json:"idreserva"`
-	Idestadopago  int32        `json:"idestadopago"`
-	Numerofactura string       `json:"numerofactura"`
-	Fechafactura  time.Time    `json:"fechafactura"`
-	Metodopago    string       `json:"metodopago"`
-	Moneda        string       `json:"moneda"`
-	Fechapago     sql.NullTime `json:"fechapago"`
-	Subtotal      string       `json:"subtotal"`
-	Impuesto      string       `json:"impuesto"`
-	Descuento     string       `json:"descuento"`
-	Preciototal   string       `json:"preciototal"`
-	Idfactura     int32        `json:"idfactura"`
+	Idparticipante int32        `json:"idparticipante"`
+	Idestadopago   int32        `json:"idestadopago"`
+	Numerofactura  string       `json:"numerofactura"`
+	Fechafactura   time.Time    `json:"fechafactura"`
+	Metodopago     string       `json:"metodopago"`
+	Moneda         string       `json:"moneda"`
+	Fechapago      sql.NullTime `json:"fechapago"`
+	Subtotal       string       `json:"subtotal"`
+	Impuesto       string       `json:"impuesto"`
+	Descuento      string       `json:"descuento"`
+	Preciototal    string       `json:"preciototal"`
+	Idfactura      int32        `json:"idfactura"`
 }
 
 func (q *Queries) UpdateFactura(ctx context.Context, arg UpdateFacturaParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateFactura,
-		arg.Idreserva,
+		arg.Idparticipante,
 		arg.Idestadopago,
 		arg.Numerofactura,
 		arg.Fechafactura,

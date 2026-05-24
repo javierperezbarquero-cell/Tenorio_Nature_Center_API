@@ -85,7 +85,7 @@ type Estadoreserva struct {
 
 type Factura struct {
 	Idfactura          int32        `json:"idfactura"`
-	Idreserva          int32        `json:"idreserva"`
+	Idparticipante     int32        `json:"idparticipante"`
 	Idestadopago       int32        `json:"idestadopago"`
 	Numerofactura      string       `json:"numerofactura"`
 	Fechafactura       time.Time    `json:"fechafactura"`
