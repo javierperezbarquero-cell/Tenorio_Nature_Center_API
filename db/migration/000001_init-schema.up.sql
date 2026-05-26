@@ -197,26 +197,36 @@ CREATE TABLE EstadoPago(
 
 
 CREATE TABLE Factura(
-    idFactura INT AUTO_INCREMENT NOT NULL,
-    idReserva INT NOT NULL,
-    idEstadoPago INT NOT NULL,
-    numeroFactura VARCHAR(50) NOT NULL,
-    fechaFactura DATE NOT NULL,
-    metodoPago VARCHAR(20) NOT NULL,
-    moneda VARCHAR(30) NOT NULL,
-    fechaPago DATE DEFAULT NULL,
-    subtotal DECIMAL(10,2) NOT NULL,
-    descuento DECIMAL(10,2) NOT NULL,
-    impuesto DECIMAL(10,2) NOT NULL,
-    precioTotal DECIMAL(10,2) NOT NULL,
-    fechaCreacion DATETIME DEFAULT NULL,
+    idFactura        INT AUTO_INCREMENT NOT NULL,
+    idReserva        INT NOT NULL,
+    idEstadoPago     INT NOT NULL,
+    numeroFactura    VARCHAR(50) NOT NULL,
+    fechaFactura     DATE NOT NULL,
+    metodoPago       VARCHAR(20) NOT NULL,
+    moneda           VARCHAR(30) NOT NULL,
+    fechaPago        DATE DEFAULT NULL,
+    subtotal         DECIMAL(10,2) NOT NULL,
+    descuento        DECIMAL(10,2) NOT NULL,
+    impuesto         DECIMAL(10,2) NOT NULL,
+    precioTotal      DECIMAL(10,2) NOT NULL,
+    fechaCreacion    DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_factura PRIMARY KEY(idFactura),
-    CONSTRAINT uq_factura_reserva UNIQUE(idReserva),
-    CONSTRAINT fk_factura_reserva FOREIGN KEY(idReserva) REFERENCES Reserva(idReserva),
+    CONSTRAINT fk_factura_reserva   FOREIGN KEY(idReserva)    REFERENCES Reserva(idReserva),
     CONSTRAINT fk_factura_estadoPago FOREIGN KEY(idEstadoPago) REFERENCES EstadoPago(idEstadoPago)
-) ENGINE=INNODB;
+);
 
+CREATE TABLE FacturaParticipante(
+    idFacturaParticipante INT AUTO_INCREMENT NOT NULL,
+    idFactura             INT NOT NULL,
+    idParticipante        INT NOT NULL,
+    fechaCreacion         DATETIME DEFAULT NULL,
+    fechaActualizacion    DATETIME DEFAULT NULL,
+    CONSTRAINT pk_facturaParticipante PRIMARY KEY(idFacturaParticipante),
+    CONSTRAINT uq_facturaParticipante UNIQUE(idParticipante),
+    CONSTRAINT fk_fp_factura      FOREIGN KEY(idFactura)      REFERENCES Factura(idFactura),
+    CONSTRAINT fk_fp_participante FOREIGN KEY(idParticipante) REFERENCES Participante(idParticipante)
+);
 
 CREATE TABLE usuarios( 
     idUsuario INT AUTO_INCREMENT NOT NULL, 

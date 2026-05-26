@@ -1,14 +1,14 @@
 package api
-
+ 
 import (
 	"database/sql"
 	"net/http"
 	"rest/dto"
 	"strconv"
-
+ 
 	"github.com/gin-gonic/gin"
 )
-
+ 
 type createFacturaRequest struct {
 	IdReserva     int32  `json:"idReserva"     binding:"required"`
 	IdEstadoPago  int32  `json:"idEstadoPago"  binding:"required"`
@@ -22,7 +22,7 @@ type createFacturaRequest struct {
 	Descuento     string `json:"descuento"     binding:"required"`
 	PrecioTotal   string `json:"precioTotal"   binding:"required"`
 }
-
+ 
 type updateFacturaRequest struct {
 	IdFactura     int32  `json:"idFactura"     binding:"required"`
 	IdReserva     int32  `json:"idReserva"     binding:"required"`
@@ -37,31 +37,31 @@ type updateFacturaRequest struct {
 	Descuento     string `json:"descuento"     binding:"required"`
 	PrecioTotal   string `json:"precioTotal"   binding:"required"`
 }
-
+ 
 func (server *Server) createFactura(ctx *gin.Context) {
 	var req createFacturaRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+ 
 	if err := validarCamposDecimalesFactura(req.Subtotal, req.Impuesto, req.Descuento, req.PrecioTotal); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+ 
 	fechaFactura, err := parsearFecha(req.FechaFactura, "fechaFactura")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+ 
 	fechaPago, err := parsearFechaNullable(req.FechaPago, "fechaPago")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+ 
 	args := dto.CreateFacturaParams{
 		Idreserva:     req.IdReserva,
 		Idestadopago:  req.IdEstadoPago,
@@ -75,20 +75,20 @@ func (server *Server) createFactura(ctx *gin.Context) {
 		Descuento:     req.Descuento,
 		Preciototal:   req.PrecioTotal,
 	}
-
+ 
 	result, err := server.dbtx.CreateFactura(ctx, args)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
+ 
 	lastId, _ := result.LastInsertId()
 	ctx.JSON(http.StatusOK, gin.H{
 		"idFactura": lastId,
 		"message":   "Factura creada",
 	})
 }
-
+ 
 func (server *Server) getAllFacturas(ctx *gin.Context) {
 	facturas, err := server.dbtx.GetAllFactura(ctx)
 	if err != nil {
@@ -97,14 +97,14 @@ func (server *Server) getAllFacturas(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, facturas)
 }
-
+ 
 func (server *Server) getFacturaById(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
-
+ 
 	factura, err := server.dbtx.GetFacturaById(ctx, int32(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -116,31 +116,31 @@ func (server *Server) getFacturaById(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, factura)
 }
-
+ 
 func (server *Server) updateFactura(ctx *gin.Context) {
 	var req updateFacturaRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+ 
 	if err := validarCamposDecimalesFactura(req.Subtotal, req.Impuesto, req.Descuento, req.PrecioTotal); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+ 
 	fechaFactura, err := parsearFecha(req.FechaFactura, "fechaFactura")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+ 
 	fechaPago, err := parsearFechaNullable(req.FechaPago, "fechaPago")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+ 
 	args := dto.UpdateFacturaParams{
 		Idreserva:     req.IdReserva,
 		Idestadopago:  req.IdEstadoPago,
@@ -155,7 +155,7 @@ func (server *Server) updateFactura(ctx *gin.Context) {
 		Preciototal:   req.PrecioTotal,
 		Idfactura:     req.IdFactura,
 	}
-
+ 
 	_, err = server.dbtx.UpdateFactura(ctx, args)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -163,14 +163,20 @@ func (server *Server) updateFactura(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Factura actualizada"})
 }
-
+ 
 func (server *Server) deleteFactura(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
-
+ 
+	_, err = server.dbtx.DeleteFacturaParticipanteByFactura(ctx, int32(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+ 
 	_, err = server.dbtx.DeleteFactura(ctx, int32(id))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

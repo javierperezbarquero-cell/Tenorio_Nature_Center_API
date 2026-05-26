@@ -1,5 +1,5 @@
 -- name: GetAllFactura :many
-SELECT 
+SELECT
     f.idFactura,
     f.numeroFactura,
     f.fechaFactura,
@@ -12,42 +12,96 @@ SELECT
     f.precioTotal,
     f.fechaCreacion,
     f.fechaActualizacion,
-
-    -- Cantidad de participantes calculada desde Participante
-    (SELECT COUNT(*) 
-     FROM Participante p 
-     WHERE p.idReserva = r.idReserva) AS cantidadPersonas,
-
-    -- Cliente: primer participante de la reserva
-    (SELECT c.nombre 
-     FROM Participante p 
-     JOIN Cliente c ON c.idCliente = p.idCliente 
-     WHERE p.idReserva = r.idReserva 
-     LIMIT 1) AS clienteNombre,
-
-    (SELECT c.telefono 
-     FROM Participante p 
-     JOIN Cliente c ON c.idCliente = p.idCliente 
-     WHERE p.idReserva = r.idReserva 
-     LIMIT 1) AS clienteTelefono,
-
-    -- Tour: primer detalle de la reserva
-    (SELECT t.nombre 
-     FROM DetalleReserva dr 
-     JOIN Tour t ON t.idTour = dr.idTour 
-     WHERE dr.idReserva = r.idReserva 
+ 
+    -- Cantidad de participantes cubiertos por esta factura
+    COUNT(fp.idParticipante) AS cantidadPersonas,
+ 
+    -- Nombres de los clientes cubiertos (pueden ser varios)
+    GROUP_CONCAT(c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientesNombre,
+ 
+    -- Telefonos de los clientes cubiertos
+    GROUP_CONCAT(c.telefono ORDER BY c.nombre SEPARATOR ', ') AS clientesTelefono,
+ 
+    -- Tour asociado a la reserva
+    (SELECT t.nombre
+     FROM DetalleReserva dr
+     JOIN Tour t ON t.idTour = dr.idTour
+     WHERE dr.idReserva = f.idReserva
      LIMIT 1) AS tourNombre,
-
-    -- Estado Pago
+ 
+    -- Estado de pago
     e.nombre AS nombreEstado
-
+ 
 FROM Factura f
-JOIN Reserva r ON f.idReserva = r.idReserva
-JOIN EstadoPago e ON f.idEstadoPago = e.idEstadoPago;
-
+JOIN FacturaParticipante fp ON fp.idFactura    = f.idFactura
+JOIN Participante        p  ON p.idParticipante = fp.idParticipante
+JOIN Cliente             c  ON c.idCliente      = p.idCliente
+JOIN EstadoPago          e  ON e.idEstadoPago   = f.idEstadoPago
+GROUP BY
+    f.idFactura,
+    f.numeroFactura,
+    f.fechaFactura,
+    f.metodoPago,
+    f.moneda,
+    f.fechaPago,
+    f.subtotal,
+    f.impuesto,
+    f.descuento,
+    f.precioTotal,
+    f.fechaCreacion,
+    f.fechaActualizacion,
+    e.nombre;
+ 
+ 
 -- name: GetFacturaById :one
-SELECT * FROM Factura WHERE idFactura = ?;
-
+SELECT
+    f.idFactura,
+    f.numeroFactura,
+    f.fechaFactura,
+    f.metodoPago,
+    f.moneda,
+    f.fechaPago,
+    f.subtotal,
+    f.impuesto,
+    f.descuento,
+    f.precioTotal,
+    f.fechaCreacion,
+    f.fechaActualizacion,
+ 
+    COUNT(fp.idParticipante) AS cantidadPersonas,
+    GROUP_CONCAT(c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientesNombre,
+    GROUP_CONCAT(c.telefono ORDER BY c.nombre SEPARATOR ', ') AS clientesTelefono,
+ 
+    (SELECT t.nombre
+     FROM DetalleReserva dr
+     JOIN Tour t ON t.idTour = dr.idTour
+     WHERE dr.idReserva = f.idReserva
+     LIMIT 1) AS tourNombre,
+ 
+    e.nombre AS nombreEstado
+ 
+FROM Factura f
+JOIN FacturaParticipante fp ON fp.idFactura     = f.idFactura
+JOIN Participante        p  ON p.idParticipante  = fp.idParticipante
+JOIN Cliente             c  ON c.idCliente       = p.idCliente
+JOIN EstadoPago          e  ON e.idEstadoPago    = f.idEstadoPago
+WHERE f.idFactura = ?
+GROUP BY
+    f.idFactura,
+    f.numeroFactura,
+    f.fechaFactura,
+    f.metodoPago,
+    f.moneda,
+    f.fechaPago,
+    f.subtotal,
+    f.impuesto,
+    f.descuento,
+    f.precioTotal,
+    f.fechaCreacion,
+    f.fechaActualizacion,
+    e.nombre;
+ 
+ 
 -- name: CreateFactura :execresult
 INSERT INTO Factura (
     idReserva,
@@ -65,22 +119,24 @@ INSERT INTO Factura (
     fechaActualizacion
 )
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now());
-
+ 
+ 
 -- name: UpdateFactura :execresult
 UPDATE Factura
-SET idReserva = ?,
-    idEstadoPago = ?,
-    numeroFactura = ?,
-    fechaFactura = ?,
-    metodoPago = ?,
-    moneda = ?,
-    fechaPago = ?,
-    subtotal = ?,
-    impuesto = ?,
-    descuento = ?,
-    precioTotal = ?,
+SET idReserva          = ?,
+    idEstadoPago       = ?,
+    numeroFactura      = ?,
+    fechaFactura       = ?,
+    metodoPago         = ?,
+    moneda             = ?,
+    fechaPago          = ?,
+    subtotal           = ?,
+    impuesto           = ?,
+    descuento          = ?,
+    precioTotal        = ?,
     fechaActualizacion = now()
 WHERE idFactura = ?;
-
+ 
+ 
 -- name: DeleteFactura :execresult
 DELETE FROM Factura WHERE idFactura = ?;

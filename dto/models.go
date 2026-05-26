@@ -100,6 +100,14 @@ type Factura struct {
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
 }
 
+type Facturaparticipante struct {
+	Idfacturaparticipante int32        `json:"idfacturaparticipante"`
+	Idfactura             int32        `json:"idfactura"`
+	Idparticipante        int32        `json:"idparticipante"`
+	Fechacreacion         sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion    sql.NullTime `json:"fechaactualizacion"`
+}
+
 type Guium struct {
 	Idguia             int32        `json:"idguia"`
 	Nombre             string       `json:"nombre"`
