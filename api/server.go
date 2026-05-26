@@ -128,6 +128,12 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	authRoutes.GET("api/v1/factura/:id", server.getFacturaById)
 	authRoutes.PUT("api/v1/factura", server.updateFactura)
 	authRoutes.DELETE("api/v1/factura/:id", server.deleteFactura)
+	// Factura Participante
+	authRoutes.POST("api/v1/facturaparticipante", server.createFacturaParticipante)
+	authRoutes.GET("api/v1/facturaparticipante/factura/:id", server.getParticipantesByFactura)     // participantes de una factura
+	authRoutes.GET("api/v1/facturaparticipante/participante/:id", server.getFacturaByParticipante) // factura de un participante
+	authRoutes.PUT("api/v1/facturaparticipante", server.updateFacturaParticipante)
+	authRoutes.DELETE("api/v1/facturaparticipante/:id", server.deleteFacturaParticipante)
 	// Empresa Cliente
 	authRoutes.POST("api/v1/empresacliente", server.createEmpresaCliente)
 	authRoutes.GET("api/v1/empresacliente", server.getAllEmpresaCliente)

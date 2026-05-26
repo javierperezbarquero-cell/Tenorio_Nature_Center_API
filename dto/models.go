@@ -85,7 +85,7 @@ type Estadoreserva struct {
 
 type Factura struct {
 	Idfactura          int32        `json:"idfactura"`
-	Idparticipante     int32        `json:"idparticipante"`
+	Idreserva          int32        `json:"idreserva"`
 	Idestadopago       int32        `json:"idestadopago"`
 	Numerofactura      string       `json:"numerofactura"`
 	Fechafactura       time.Time    `json:"fechafactura"`
@@ -98,6 +98,14 @@ type Factura struct {
 	Preciototal        string       `json:"preciototal"`
 	Fechacreacion      sql.NullTime `json:"fechacreacion"`
 	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
+}
+
+type Facturaparticipante struct {
+	Idfacturaparticipante int32        `json:"idfacturaparticipante"`
+	Idfactura             int32        `json:"idfactura"`
+	Idparticipante        int32        `json:"idparticipante"`
+	Fechacreacion         sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion    sql.NullTime `json:"fechaactualizacion"`
 }
 
 type Guium struct {
