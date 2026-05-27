@@ -71,6 +71,7 @@ CREATE TABLE IdiomaGuia(
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_idiomaGuia PRIMARY KEY(idIdiomaGuia),
+    CONSTRAINT uq_idiomaGuia UNIQUE(idGuia, idIdioma),
     CONSTRAINT fk_idiomaGuia_guia FOREIGN KEY(idGuia) REFERENCES Guia(idGuia),
     CONSTRAINT fk_idiomaGuia_idioma FOREIGN KEY(idIdioma) REFERENCES Idioma(idIdioma)
 ) ENGINE=INNODB;
