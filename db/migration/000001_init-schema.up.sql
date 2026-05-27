@@ -198,7 +198,6 @@ CREATE TABLE EstadoPago(
 
 CREATE TABLE Factura(
     idFactura        INT AUTO_INCREMENT NOT NULL,
-    idReserva        INT NOT NULL,
     idEstadoPago     INT NOT NULL,
     numeroFactura    VARCHAR(50) NOT NULL,
     fechaFactura     DATE NOT NULL,
@@ -212,7 +211,6 @@ CREATE TABLE Factura(
     fechaCreacion    DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_factura PRIMARY KEY(idFactura),
-    CONSTRAINT fk_factura_reserva   FOREIGN KEY(idReserva)    REFERENCES Reserva(idReserva),
     CONSTRAINT fk_factura_estadoPago FOREIGN KEY(idEstadoPago) REFERENCES EstadoPago(idEstadoPago)
 );
 
