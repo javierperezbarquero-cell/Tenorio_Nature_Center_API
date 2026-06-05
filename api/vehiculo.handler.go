@@ -64,7 +64,7 @@ func (server *Server) getVehiculoById(ctx *gin.Context) {
 		return
 	}
 
-	vehiculo, err := server.dbtx.GetVehiculosByChofer(ctx, int32(id))
+	vehiculo, err := server.dbtx.GetVehiculoById(ctx, int32(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "Vehículo no encontrado"})

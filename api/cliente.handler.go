@@ -11,6 +11,7 @@ import (
 
 type createClienteRequest struct {
 	IdEmpresaCliente *int32 `json:"idEmpresaCliente"`
+	IdUsuario        *int32 `json:"idUsuario"`
 	Nombre           string `json:"nombre"        binding:"required"`
 	Identificador    string `json:"identificador" binding:"required"`
 	FechaNac         string `json:"fechaNac"      binding:"required"`
@@ -20,8 +21,9 @@ type createClienteRequest struct {
 }
 
 type updateClienteRequest struct {
-	IdCliente        int32  `json:"idCliente"     binding:"required"`
+	IdCliente        int32  `json:"idCliente" binding:"required"`
 	IdEmpresaCliente *int32 `json:"idEmpresaCliente"`
+	IdUsuario        *int32 `json:"idUsuario"`
 	Nombre           string `json:"nombre"        binding:"required"`
 	Identificador    string `json:"identificador" binding:"required"`
 	FechaNac         string `json:"fechaNac"      binding:"required"`
@@ -51,6 +53,7 @@ func (server *Server) createCliente(ctx *gin.Context) {
 
 	args := dto.CreateClienteParams{
 		Idempresacliente: toNullInt32(req.IdEmpresaCliente),
+		Idusuario:        toNullInt32(req.IdUsuario),
 		Nombre:           req.Nombre,
 		Identificador:    req.Identificador,
 		Fechanac:         fechaNac,
@@ -97,7 +100,6 @@ func (server *Server) getClienteById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, cliente)
 }
 
-
 func (server *Server) updateCliente(ctx *gin.Context) {
 	var req updateClienteRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -119,6 +121,7 @@ func (server *Server) updateCliente(ctx *gin.Context) {
 
 	args := dto.UpdateClienteParams{
 		Idempresacliente: toNullInt32(req.IdEmpresaCliente),
+		Idusuario:        toNullInt32(req.IdUsuario),
 		Nombre:           req.Nombre,
 		Identificador:    req.Identificador,
 		Fechanac:         fechaNac,
@@ -149,4 +152,44 @@ func (server *Server) deleteCliente(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Cliente eliminado"})
+}
+
+func (server *Server) getClienteByUsuario(ctx *gin.Context) {
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest,
+			gin.H{"error": "ID inválido"})
+		return
+	}
+
+	cliente, err := server.dbtx.GetClienteByUsuario(
+		ctx,
+		sql.NullInt32{
+			Int32: int32(id),
+			Valid: true,
+		},
+	)
+
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+
+			ctx.JSON(
+				http.StatusNotFound,
+				gin.H{"error": "Cliente no encontrado"},
+			)
+
+			return
+		}
+
+		ctx.JSON(
+			http.StatusInternalServerError,
+			errorResponse(err),
+		)
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, cliente)
 }
