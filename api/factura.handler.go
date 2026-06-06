@@ -10,32 +10,30 @@ import (
 )
 
 type createFacturaRequest struct {
-	IdParticipante int32  `json:"idParticipante" binding:"required"`
-	IdEstadoPago   int32  `json:"idEstadoPago"   binding:"required"`
-	NumeroFactura  string `json:"numeroFactura"  binding:"required"`
-	FechaFactura   string `json:"fechaFactura"   binding:"required"`
-	MetodoPago     string `json:"metodoPago"     binding:"required"`
-	Moneda         string `json:"moneda"         binding:"required"`
-	FechaPago      string `json:"fechaPago"`
-	Subtotal       string `json:"subtotal"       binding:"required"`
-	Impuesto       string `json:"impuesto"       binding:"required"`
-	Descuento      string `json:"descuento"      binding:"required"`
-	PrecioTotal    string `json:"precioTotal"    binding:"required"`
+	IdEstadoPago  int32  `json:"idEstadoPago"  binding:"required"`
+	NumeroFactura string `json:"numeroFactura" binding:"required"`
+	FechaFactura  string `json:"fechaFactura"  binding:"required"`
+	MetodoPago    string `json:"metodoPago"    binding:"required"`
+	Moneda        string `json:"moneda"        binding:"required"`
+	FechaPago     string `json:"fechaPago"`
+	Subtotal      string `json:"subtotal"      binding:"required"`
+	Impuesto      string `json:"impuesto"      binding:"required"`
+	Descuento     string `json:"descuento"     binding:"required"`
+	PrecioTotal   string `json:"precioTotal"   binding:"required"`
 }
 
 type updateFacturaRequest struct {
-	IdFactura      int32  `json:"idFactura"      binding:"required"`
-	IdParticipante int32  `json:"idParticipante" binding:"required"`
-	IdEstadoPago   int32  `json:"idEstadoPago"   binding:"required"`
-	NumeroFactura  string `json:"numeroFactura"  binding:"required"`
-	FechaFactura   string `json:"fechaFactura"   binding:"required"`
-	MetodoPago     string `json:"metodoPago"     binding:"required"`
-	Moneda         string `json:"moneda"         binding:"required"`
-	FechaPago      string `json:"fechaPago"`
-	Subtotal       string `json:"subtotal"       binding:"required"`
-	Impuesto       string `json:"impuesto"       binding:"required"`
-	Descuento      string `json:"descuento"      binding:"required"`
-	PrecioTotal    string `json:"precioTotal"    binding:"required"`
+	IdFactura     int32  `json:"idFactura"     binding:"required"`
+	IdEstadoPago  int32  `json:"idEstadoPago"  binding:"required"`
+	NumeroFactura string `json:"numeroFactura" binding:"required"`
+	FechaFactura  string `json:"fechaFactura"  binding:"required"`
+	MetodoPago    string `json:"metodoPago"    binding:"required"`
+	Moneda        string `json:"moneda"        binding:"required"`
+	FechaPago     string `json:"fechaPago"`
+	Subtotal      string `json:"subtotal"      binding:"required"`
+	Impuesto      string `json:"impuesto"      binding:"required"`
+	Descuento     string `json:"descuento"     binding:"required"`
+	PrecioTotal   string `json:"precioTotal"   binding:"required"`
 }
 
 func (server *Server) createFactura(ctx *gin.Context) {
@@ -63,17 +61,16 @@ func (server *Server) createFactura(ctx *gin.Context) {
 	}
 
 	args := dto.CreateFacturaParams{
-		Idparticipante: req.IdParticipante,
-		Idestadopago:   req.IdEstadoPago,
-		Numerofactura:  req.NumeroFactura,
-		Fechafactura:   fechaFactura,
-		Metodopago:     req.MetodoPago,
-		Moneda:         req.Moneda,
-		Fechapago:      fechaPago,
-		Subtotal:       req.Subtotal,
-		Impuesto:       req.Impuesto,
-		Descuento:      req.Descuento,
-		Preciototal:    req.PrecioTotal,
+		Idestadopago:  req.IdEstadoPago,
+		Numerofactura: req.NumeroFactura,
+		Fechafactura:  fechaFactura,
+		Metodopago:    req.MetodoPago,
+		Moneda:        req.Moneda,
+		Fechapago:     fechaPago,
+		Subtotal:      req.Subtotal,
+		Impuesto:      req.Impuesto,
+		Descuento:     req.Descuento,
+		Preciototal:   req.PrecioTotal,
 	}
 
 	result, err := server.dbtx.CreateFactura(ctx, args)
@@ -142,18 +139,17 @@ func (server *Server) updateFactura(ctx *gin.Context) {
 	}
 
 	args := dto.UpdateFacturaParams{
-		Idparticipante: req.IdParticipante,
-		Idestadopago:   req.IdEstadoPago,
-		Numerofactura:  req.NumeroFactura,
-		Fechafactura:   fechaFactura,
-		Metodopago:     req.MetodoPago,
-		Moneda:         req.Moneda,
-		Fechapago:      fechaPago,
-		Subtotal:       req.Subtotal,
-		Impuesto:       req.Impuesto,
-		Descuento:      req.Descuento,
-		Preciototal:    req.PrecioTotal,
-		Idfactura:      req.IdFactura,
+		Idestadopago:  req.IdEstadoPago,
+		Numerofactura: req.NumeroFactura,
+		Fechafactura:  fechaFactura,
+		Metodopago:    req.MetodoPago,
+		Moneda:        req.Moneda,
+		Fechapago:     fechaPago,
+		Subtotal:      req.Subtotal,
+		Impuesto:      req.Impuesto,
+		Descuento:     req.Descuento,
+		Preciototal:   req.PrecioTotal,
+		Idfactura:     req.IdFactura,
 	}
 
 	_, err = server.dbtx.UpdateFactura(ctx, args)
@@ -168,6 +164,12 @@ func (server *Server) deleteFactura(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	_, err = server.dbtx.DeleteFacturaParticipanteByFactura(ctx, int32(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 

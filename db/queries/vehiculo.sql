@@ -26,6 +26,22 @@ JOIN Chofer c ON v.idChofer = c.idChofer;
 SELECT * FROM Vehiculo 
 WHERE idChofer = ?;
 
+-- name: GetVehiculoById :one
+SELECT
+    v.idVehiculo,
+    v.matricula,
+    v.capacidad,
+    v.modelo,
+    v.idChofer,
+    c.nombre AS nombre_chofer,
+    c.telefono AS telefono_chofer,
+    v.fechaCreacion,
+    v.fechaActualizacion
+FROM Vehiculo v
+JOIN Chofer c
+    ON v.idChofer = c.idChofer
+WHERE v.idVehiculo = ?;
+
 -- name: UpdateVehiculo :execresult
 UPDATE Vehiculo 
 SET idChofer = ?,

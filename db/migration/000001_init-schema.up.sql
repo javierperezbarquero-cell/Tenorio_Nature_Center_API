@@ -13,6 +13,7 @@ CREATE TABLE EmpresaCliente(
 
 CREATE TABLE Cliente(
     idCliente INT AUTO_INCREMENT NOT NULL,
+    idUsuario INT DEFAULT NULL,
     idEmpresaCliente INT DEFAULT NULL,
     nombre VARCHAR(45) NOT NULL,
     identificador VARCHAR(25) NOT NULL,
@@ -24,6 +25,8 @@ CREATE TABLE Cliente(
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_cliente PRIMARY KEY(idCliente),
     CONSTRAINT uq_cliente_identificador UNIQUE(identificador),
+    CONSTRAINT uq_cliente_usuario UNIQUE(idUsuario),
+    CONSTRAINT fk_cliente_usuario FOREIGN KEY(idUsuario) REFERENCES usuarios(idUsuario),
     CONSTRAINT fk_cliente_empresa FOREIGN KEY(idEmpresaCliente) REFERENCES EmpresaCliente(idEmpresaCliente)
 ) ENGINE=INNODB;
 
@@ -71,6 +74,7 @@ CREATE TABLE IdiomaGuia(
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_idiomaGuia PRIMARY KEY(idIdiomaGuia),
+    CONSTRAINT uq_idiomaGuia UNIQUE(idGuia, idIdioma),
     CONSTRAINT fk_idiomaGuia_guia FOREIGN KEY(idGuia) REFERENCES Guia(idGuia),
     CONSTRAINT fk_idiomaGuia_idioma FOREIGN KEY(idIdioma) REFERENCES Idioma(idIdioma)
 ) ENGINE=INNODB;
@@ -197,25 +201,34 @@ CREATE TABLE EstadoPago(
 
 
 CREATE TABLE Factura(
-    idFactura INT AUTO_INCREMENT NOT NULL,
-    idParticipante INT NOT NULL,
-    idEstadoPago INT NOT NULL,
-    numeroFactura VARCHAR(50) NOT NULL,
-    fechaFactura DATE NOT NULL,
-    metodoPago VARCHAR(20) NOT NULL,
-    moneda VARCHAR(30) NOT NULL,
-    fechaPago DATE DEFAULT NULL,
-    subtotal DECIMAL(10,2) NOT NULL,
-    descuento DECIMAL(10,2) NOT NULL,
-    impuesto DECIMAL(10,2) NOT NULL,
-    precioTotal DECIMAL(10,2) NOT NULL,
-    fechaCreacion DATETIME DEFAULT NULL,
+    idFactura        INT AUTO_INCREMENT NOT NULL,
+    idEstadoPago     INT NOT NULL,
+    numeroFactura    VARCHAR(50) NOT NULL,
+    fechaFactura     DATE NOT NULL,
+    metodoPago       VARCHAR(20) NOT NULL,
+    moneda           VARCHAR(30) NOT NULL,
+    fechaPago        DATE DEFAULT NULL,
+    subtotal         DECIMAL(10,2) NOT NULL,
+    descuento        DECIMAL(10,2) NOT NULL,
+    impuesto         DECIMAL(10,2) NOT NULL,
+    precioTotal      DECIMAL(10,2) NOT NULL,
+    fechaCreacion    DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_factura PRIMARY KEY(idFactura),
-    CONSTRAINT uq_factura_participante UNIQUE(idParticipante),
-    CONSTRAINT fk_factura_participante FOREIGN KEY(idParticipante) REFERENCES Participante(idParticipante),
     CONSTRAINT fk_factura_estadoPago FOREIGN KEY(idEstadoPago) REFERENCES EstadoPago(idEstadoPago)
-) ENGINE=INNODB;
+);
+
+CREATE TABLE FacturaParticipante(
+    idFacturaParticipante INT AUTO_INCREMENT NOT NULL,
+    idFactura             INT NOT NULL,
+    idParticipante        INT NOT NULL,
+    fechaCreacion         DATETIME DEFAULT NULL,
+    fechaActualizacion    DATETIME DEFAULT NULL,
+    CONSTRAINT pk_facturaParticipante PRIMARY KEY(idFacturaParticipante),
+    CONSTRAINT uq_facturaParticipante UNIQUE(idParticipante),
+    CONSTRAINT fk_fp_factura      FOREIGN KEY(idFactura)      REFERENCES Factura(idFactura),
+    CONSTRAINT fk_fp_participante FOREIGN KEY(idParticipante) REFERENCES Participante(idParticipante)
+);
 
 CREATE TABLE usuarios( 
     idUsuario INT AUTO_INCREMENT NOT NULL, 
