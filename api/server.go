@@ -89,6 +89,7 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenBuilder))
 
 	//Usuario
+	authRoutes.GET("api/v1/usuario", server.getAllUsuarios)
 	authRoutes.PUT("api/v1/usuario", server.updateUsuario)
 	authRoutes.DELETE("api/v1/usuario/:id", server.deleteUsuario)
 	//Chofer

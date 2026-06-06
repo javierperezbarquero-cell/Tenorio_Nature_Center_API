@@ -2,31 +2,24 @@ services:
 
   api:
     build: .
-
     container_name: api_container
-
     ports:
       - "8080:8080"
-
     depends_on:
       - mysql
-
     restart: always
+    volumes:
+      - ./utils/images:/app/utils/images
 
   mysql:
     image: mysql:8
-
     container_name: mysql_container
-
     restart: always
-
     environment:
       MYSQL_ROOT_PASSWORD: mysql
       MYSQL_DATABASE: tenorio_nature_center
-
     ports:
       - "3307:3306"
-
     volumes:
       - mysql_data:/var/lib/mysql
       - ./db/migration/000001_init-schema.up.sql:/docker-entrypoint-initdb.d/init.sql

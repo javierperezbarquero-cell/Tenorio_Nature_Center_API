@@ -19,3 +19,6 @@ WHERE idusuario = ?;
 
 -- name: DeleteUsuario :exec
 DELETE FROM usuarios WHERE idusuario = ?;
+
+-- name: GetAllUsuarios :many
+SELECT * FROM usuarios;
