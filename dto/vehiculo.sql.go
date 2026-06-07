@@ -105,6 +105,52 @@ func (q *Queries) GetAllVehiculos(ctx context.Context) ([]GetAllVehiculosRow, er
 	return items, nil
 }
 
+const getVehiculoById = `-- name: GetVehiculoById :one
+SELECT
+    v.idVehiculo,
+    v.matricula,
+    v.capacidad,
+    v.modelo,
+    v.idChofer,
+    c.nombre AS nombre_chofer,
+    c.telefono AS telefono_chofer,
+    v.fechaCreacion,
+    v.fechaActualizacion
+FROM Vehiculo v
+JOIN Chofer c
+    ON v.idChofer = c.idChofer
+WHERE v.idVehiculo = ?
+`
+
+type GetVehiculoByIdRow struct {
+	Idvehiculo         int32        `json:"idvehiculo"`
+	Matricula          string       `json:"matricula"`
+	Capacidad          int32        `json:"capacidad"`
+	Modelo             string       `json:"modelo"`
+	Idchofer           int32        `json:"idchofer"`
+	NombreChofer       string       `json:"nombre_chofer"`
+	TelefonoChofer     string       `json:"telefono_chofer"`
+	Fechacreacion      sql.NullTime `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime `json:"fechaactualizacion"`
+}
+
+func (q *Queries) GetVehiculoById(ctx context.Context, idvehiculo int32) (GetVehiculoByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getVehiculoById, idvehiculo)
+	var i GetVehiculoByIdRow
+	err := row.Scan(
+		&i.Idvehiculo,
+		&i.Matricula,
+		&i.Capacidad,
+		&i.Modelo,
+		&i.Idchofer,
+		&i.NombreChofer,
+		&i.TelefonoChofer,
+		&i.Fechacreacion,
+		&i.Fechaactualizacion,
+	)
+	return i, err
+}
+
 const getVehiculosByChofer = `-- name: GetVehiculosByChofer :many
 SELECT idvehiculo, idchofer, matricula, capacidad, modelo, fechacreacion, fechaactualizacion FROM Vehiculo 
 WHERE idChofer = ?

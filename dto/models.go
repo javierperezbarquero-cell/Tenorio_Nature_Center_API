@@ -24,6 +24,7 @@ type Chofer struct {
 
 type Cliente struct {
 	Idcliente          int32         `json:"idcliente"`
+	Idusuario          sql.NullInt32 `json:"idusuario"`
 	Idempresacliente   sql.NullInt32 `json:"idempresacliente"`
 	Nombre             string        `json:"nombre"`
 	Identificador      string        `json:"identificador"`

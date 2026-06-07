@@ -77,7 +77,31 @@ func (server *Server) getFacturaByParticipante(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, facturaParticipante)
 }
- 
+
+func (server *Server) getReservasDisponiblesParaFacturar(ctx *gin.Context) {
+	reservas, err := server.dbtx.GetReservasDisponiblesParaFacturar(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, reservas)
+}
+
+func (server *Server) getParticipantesSinFactura(ctx *gin.Context) {
+    id, err := strconv.Atoi(ctx.Param("id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+        return
+    }
+
+    participantes, err := server.dbtx.GetParticiapntesSinFactura(ctx, int32(id))
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+        return
+    }
+    ctx.JSON(http.StatusOK, participantes)
+}
+
 func (server *Server) updateFacturaParticipante(ctx *gin.Context) {
 	var req updateFacturaParticipanteRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

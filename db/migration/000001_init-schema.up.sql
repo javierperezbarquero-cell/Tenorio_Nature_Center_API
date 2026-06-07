@@ -13,6 +13,7 @@ CREATE TABLE EmpresaCliente(
 
 CREATE TABLE Cliente(
     idCliente INT AUTO_INCREMENT NOT NULL,
+    idUsuario INT DEFAULT NULL,
     idEmpresaCliente INT DEFAULT NULL,
     nombre VARCHAR(45) NOT NULL,
     identificador VARCHAR(25) NOT NULL,
@@ -24,6 +25,8 @@ CREATE TABLE Cliente(
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_cliente PRIMARY KEY(idCliente),
     CONSTRAINT uq_cliente_identificador UNIQUE(identificador),
+    CONSTRAINT uq_cliente_usuario UNIQUE(idUsuario),
+    CONSTRAINT fk_cliente_usuario FOREIGN KEY(idUsuario) REFERENCES usuarios(idUsuario),
     CONSTRAINT fk_cliente_empresa FOREIGN KEY(idEmpresaCliente) REFERENCES EmpresaCliente(idEmpresaCliente)
 ) ENGINE=INNODB;
 

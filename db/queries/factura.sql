@@ -101,6 +101,31 @@ GROUP BY
     f.fechaActualizacion,
     e.nombre;
 
+-- name: GetReservasDisponiblesParaFacturar :many
+SELECT
+    r.idReserva,
+    r.idEstadoReserva,
+    r.fechaCreacion,
+    r.fechaActualizacion,
+    GROUP_CONCAT(DISTINCT c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientenombres
+FROM Reserva r
+JOIN Participante p ON p.idReserva = r.idReserva
+JOIN Cliente c ON c.idCliente = p.idCliente
+LEFT JOIN FacturaParticipante fp ON fp.idParticipante = p.idParticipante
+GROUP BY
+    r.idReserva,
+    r.idEstadoReserva,
+    r.fechaCreacion,
+    r.fechaActualizacion
+HAVING SUM(CASE WHEN fp.idParticipante IS NULL THEN 1 ELSE 0 END) > 0;
+
+-- name: GetParticiapntesSinFactura :many
+SELECT p.idParticipante, c.nombre
+FROM Participante p
+JOIN Cliente c ON p.idCliente = c.idCliente
+LEFT JOIN FacturaParticipante fp ON p.idParticipante = fp.idParticipante
+WHERE p.idReserva = ?
+AND fp.idParticipante IS NULL;
 
 -- name: CreateFactura :execresult
 INSERT INTO Factura (

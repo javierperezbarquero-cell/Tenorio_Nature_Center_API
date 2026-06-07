@@ -275,6 +275,99 @@ func (q *Queries) GetFacturaById(ctx context.Context, idfactura int32) (GetFactu
 	return i, err
 }
 
+const getParticiapntesSinFactura = `-- name: GetParticiapntesSinFactura :many
+SELECT p.idParticipante, c.nombre
+FROM Participante p
+JOIN Cliente c ON p.idCliente = c.idCliente
+LEFT JOIN FacturaParticipante fp ON p.idParticipante = fp.idParticipante
+WHERE p.idReserva = ?
+AND fp.idParticipante IS NULL
+`
+
+type GetParticiapntesSinFacturaRow struct {
+	Idparticipante int32  `json:"idparticipante"`
+	Nombre         string `json:"nombre"`
+}
+
+func (q *Queries) GetParticiapntesSinFactura(ctx context.Context, idreserva int32) ([]GetParticiapntesSinFacturaRow, error) {
+	rows, err := q.db.QueryContext(ctx, getParticiapntesSinFactura, idreserva)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetParticiapntesSinFacturaRow
+	for rows.Next() {
+		var i GetParticiapntesSinFacturaRow
+		if err := rows.Scan(&i.Idparticipante, &i.Nombre); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getReservasDisponiblesParaFacturar = `-- name: GetReservasDisponiblesParaFacturar :many
+SELECT
+    r.idReserva,
+    r.idEstadoReserva,
+    r.fechaCreacion,
+    r.fechaActualizacion,
+    GROUP_CONCAT(DISTINCT c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientenombres
+FROM Reserva r
+JOIN Participante p ON p.idReserva = r.idReserva
+JOIN Cliente c ON c.idCliente = p.idCliente
+LEFT JOIN FacturaParticipante fp ON fp.idParticipante = p.idParticipante
+GROUP BY
+    r.idReserva,
+    r.idEstadoReserva,
+    r.fechaCreacion,
+    r.fechaActualizacion
+HAVING SUM(CASE WHEN fp.idParticipante IS NULL THEN 1 ELSE 0 END) > 0
+`
+
+type GetReservasDisponiblesParaFacturarRow struct {
+	Idreserva          int32          `json:"idreserva"`
+	Idestadoreserva    int32          `json:"idestadoreserva"`
+	Fechacreacion      sql.NullTime   `json:"fechacreacion"`
+	Fechaactualizacion sql.NullTime   `json:"fechaactualizacion"`
+	Clientenombres     sql.NullString `json:"clientenombres"`
+}
+
+func (q *Queries) GetReservasDisponiblesParaFacturar(ctx context.Context) ([]GetReservasDisponiblesParaFacturarRow, error) {
+	rows, err := q.db.QueryContext(ctx, getReservasDisponiblesParaFacturar)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetReservasDisponiblesParaFacturarRow
+	for rows.Next() {
+		var i GetReservasDisponiblesParaFacturarRow
+		if err := rows.Scan(
+			&i.Idreserva,
+			&i.Idestadoreserva,
+			&i.Fechacreacion,
+			&i.Fechaactualizacion,
+			&i.Clientenombres,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateFactura = `-- name: UpdateFactura :execresult
 UPDATE Factura
 SET idEstadoPago       = ?,
