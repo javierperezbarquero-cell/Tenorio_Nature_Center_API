@@ -24,9 +24,6 @@ type updateVehiculoRequest struct {
 	Modelo     string `json:"modelo"     binding:"required"`
 }
 
-// --- MÉTODOS DEL HANDLER ---
-
-// POST: api/v1/vehiculo
 func (server *Server) createVehiculo(ctx *gin.Context) {
 	var req createVehiculoRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -51,7 +48,6 @@ func (server *Server) createVehiculo(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"idVehiculo": lastId, "message": "Vehículo creado"})
 }
 
-// GET: api/v1/vehiculo (Incluye nombre del chofer por el JOIN)
 func (server *Server) getAllVehiculos(ctx *gin.Context) {
 	vehiculos, err := server.dbtx.GetAllVehiculos(ctx)
 	if err != nil {
@@ -61,7 +57,6 @@ func (server *Server) getAllVehiculos(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, vehiculos)
 }
 
-// GET: api/v1/vehiculo/:id
 func (server *Server) getVehiculoById(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -69,7 +64,7 @@ func (server *Server) getVehiculoById(ctx *gin.Context) {
 		return
 	}
 
-	vehiculo, err := server.dbtx.GetVehiculosByChofer(ctx, int32(id))
+	vehiculo, err := server.dbtx.GetVehiculoById(ctx, int32(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "Vehículo no encontrado"})
@@ -81,7 +76,6 @@ func (server *Server) getVehiculoById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, vehiculo)
 }
 
-// PUT: api/v1/vehiculo
 func (server *Server) updateVehiculo(ctx *gin.Context) {
 	var req updateVehiculoRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -94,7 +88,7 @@ func (server *Server) updateVehiculo(ctx *gin.Context) {
 		Matricula:  req.Matricula,
 		Capacidad:  req.Capacidad,
 		Modelo:     req.Modelo,
-		Idvehiculo: req.IdVehiculo, // Ojo a la minúscula si sqlc lo genera así
+		Idvehiculo: req.IdVehiculo,
 	}
 
 	_, err := server.dbtx.UpdateVehiculo(ctx, args)
@@ -105,7 +99,6 @@ func (server *Server) updateVehiculo(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Vehículo actualizado"})
 }
 
-// DELETE: api/v1/vehiculo/:id
 func (server *Server) deleteVehiculo(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

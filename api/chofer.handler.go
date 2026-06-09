@@ -5,28 +5,29 @@ import (
 	"net/http"
 	"rest/dto"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type createChoferRequest struct {
-	Nombre       string    `json:"nombre"        binding:"required"`
-	FechaNac     time.Time `json:"fechaNac"      binding:"required"`
-	Telefono     int32     `json:"telefono"      binding:"required"`
-	Email        string    `json:"email"         binding:"required"`
-	TipoLicencia string    `json:"tipoLicencia"  binding:"required"`
-	Nacionalidad string    `json:"nacionalidad"  binding:"required"`
+	Nombre        string `json:"nombre"        binding:"required"`
+	Identificador string `json:"identificador" binding:"required"`
+	FechaNac      string `json:"fechaNac"      binding:"required"`
+	Telefono      string `json:"telefono"      binding:"required"`
+	Email         string `json:"email"         binding:"required"`
+	TipoLicencia  string `json:"tipoLicencia"  binding:"required"`
+	Nacionalidad  string `json:"nacionalidad"  binding:"required"`
 }
 
 type updateChoferRequest struct {
-	IdChofer     int32     `json:"idChofer"      binding:"required"`
-	Nombre       string    `json:"nombre"        binding:"required"`
-	FechaNac     time.Time `json:"fechaNac"      binding:"required"`
-	Telefono     int32     `json:"telefono"      binding:"required"`
-	Email        string    `json:"email"         binding:"required"`
-	TipoLicencia string    `json:"tipoLicencia"  binding:"required"`
-	Nacionalidad string    `json:"nacionalidad"  binding:"required"`
+	IdChofer      int32  `json:"idChofer"      binding:"required"`
+	Nombre        string `json:"nombre"        binding:"required"`
+	Identificador string `json:"identificador" binding:"required"`
+	FechaNac      string `json:"fechaNac"      binding:"required"`
+	Telefono      string `json:"telefono"      binding:"required"`
+	Email         string `json:"email"         binding:"required"`
+	TipoLicencia  string `json:"tipoLicencia"  binding:"required"`
+	Nacionalidad  string `json:"nacionalidad"  binding:"required"`
 }
 
 func (server *Server) createChofer(ctx *gin.Context) {
@@ -35,13 +36,19 @@ func (server *Server) createChofer(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	args := dto.CreateChoferParams{
-		Nombre:       req.Nombre,
-		Fechanac:     req.FechaNac,
-		Telefono:     int32(req.Telefono),
-		Email:        req.Email,
-		Tipolicencia: req.TipoLicencia,
-		Nacionalidad: req.Nacionalidad,
+		Nombre:        req.Nombre,
+		Identificador: req.Identificador,
+		Fechanac:      fechaNac,
+		Telefono:      req.Telefono,
+		Email:         req.Email,
+		Tipolicencia:  req.TipoLicencia,
+		Nacionalidad:  req.Nacionalidad,
 	}
 	chofer, err := server.dbtx.CreateChofer(ctx, args)
 	if err != nil {
@@ -86,18 +93,24 @@ func (server *Server) updateChofer(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	args := dto.UpdateChoferParams{
-		Nombre:       req.Nombre,
-		Fechanac:     req.FechaNac,
-		Telefono:     req.Telefono,
-		Email:        req.Email,
-		Tipolicencia: req.TipoLicencia,
-		Nacionalidad: req.Nacionalidad,
-		Idchofer:     req.IdChofer,
+	fechaNac, err := parsearFecha(req.FechaNac, "fechaNac")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	_, err := server.dbtx.UpdateChofer(ctx, args)
+	args := dto.UpdateChoferParams{
+		Nombre:        req.Nombre,
+		Identificador: req.Identificador,
+		Fechanac:      fechaNac,
+		Telefono:      req.Telefono,
+		Email:         req.Email,
+		Tipolicencia:  req.TipoLicencia,
+		Nacionalidad:  req.Nacionalidad,
+		Idchofer:      req.IdChofer,
+	}
+
+	_, err = server.dbtx.UpdateChofer(ctx, args)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

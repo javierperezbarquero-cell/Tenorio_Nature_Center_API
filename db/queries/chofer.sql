@@ -5,12 +5,13 @@ SELECT * FROM chofer;
 SELECT * FROM chofer WHERE idChofer = ?;
 
 -- name: CreateChofer :execresult
-INSERT INTO chofer (nombre, fechaNac, telefono, email, tipoLicencia, nacionalidad, fechaCreacion, fechaActualizacion)
-VALUES (?, ?, ?, ?, ?, ?, now(), now());
+INSERT INTO chofer (nombre, identificador, fechaNac, telefono, email, tipoLicencia, nacionalidad, fechaCreacion, fechaActualizacion)
+VALUES (?, ?, ?, ?, ?, ?, ?, now(), now());
 
 -- name: UpdateChofer :execresult
 UPDATE chofer 
 SET nombre = ?, 
+    identificador = ?,
     fechaNac = ?, 
     telefono = ?, 
     email = ?, 

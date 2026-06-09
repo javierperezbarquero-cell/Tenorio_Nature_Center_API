@@ -11,8 +11,8 @@ import (
 )
 
 const createUsuario = `-- name: CreateUsuario :execresult
-INSERT INTO usuarios (nombre, apellido, rol, correo, contrasena, descripcion, imagen)
-VALUES (?, ?, ?, ?, ?, ?, ?)
+INSERT INTO usuarios (nombre, apellido, rol, correo, contrasena, descripcion, imagen, fechacreacion, fechaactualizacion)
+VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `
 
 type CreateUsuarioParams struct {
@@ -46,6 +46,45 @@ func (q *Queries) DeleteUsuario(ctx context.Context, idusuario int32) error {
 	return err
 }
 
+const getAllUsuarios = `-- name: GetAllUsuarios :many
+SELECT idusuario, nombre, apellido, rol, correo, contrasena, descripcion, imagen, fechacreacion, fechaactualizacion, tokenrecordar FROM usuarios
+`
+
+func (q *Queries) GetAllUsuarios(ctx context.Context) ([]Usuario, error) {
+	rows, err := q.db.QueryContext(ctx, getAllUsuarios)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Usuario
+	for rows.Next() {
+		var i Usuario
+		if err := rows.Scan(
+			&i.Idusuario,
+			&i.Nombre,
+			&i.Apellido,
+			&i.Rol,
+			&i.Correo,
+			&i.Contrasena,
+			&i.Descripcion,
+			&i.Imagen,
+			&i.Fechacreacion,
+			&i.Fechaactualizacion,
+			&i.Tokenrecordar,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT idusuario, nombre, apellido, rol, correo, contrasena, descripcion, imagen, fechacreacion, fechaactualizacion, tokenrecordar FROM usuarios WHERE correo=? limit 1
 `
@@ -77,7 +116,8 @@ UPDATE usuarios SET
     correo = ?,
     contrasena = ?,
     descripcion = ?,
-    imagen = ?
+    imagen = ?,
+    fechaactualizacion = NOW()
 WHERE idusuario = ?
 `
 

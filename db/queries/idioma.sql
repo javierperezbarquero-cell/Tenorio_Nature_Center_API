@@ -11,7 +11,6 @@ VALUES (?, now(), now());
 -- name: UpdateIdioma :execresult
 UPDATE Idioma 
 SET nombre = ?, 
-    fechaCreacion = ?,
     fechaActualizacion = now()
 WHERE idIdioma = ?;
 

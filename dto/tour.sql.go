@@ -24,12 +24,12 @@ INSERT INTO Tour (
 `
 
 type CreateTourParams struct {
-	Nombre       string  `json:"nombre"`
-	Descripcion  string  `json:"descripcion"`
-	Horario      string  `json:"horario"`
-	Duracion     int32   `json:"duracion"`
-	Cuposmaximos int32   `json:"cuposmaximos"`
-	Preciobase   float64 `json:"preciobase"`
+	Nombre       string `json:"nombre"`
+	Descripcion  string `json:"descripcion"`
+	Horario      string `json:"horario"`
+	Duracion     int32  `json:"duracion"`
+	Cuposmaximos int32  `json:"cuposmaximos"`
+	Preciobase   string `json:"preciobase"`
 }
 
 func (q *Queries) CreateTour(ctx context.Context, arg CreateTourParams) (sql.Result, error) {
@@ -122,13 +122,13 @@ WHERE idTour = ?
 `
 
 type UpdateTourParams struct {
-	Nombre       string  `json:"nombre"`
-	Descripcion  string  `json:"descripcion"`
-	Horario      string  `json:"horario"`
-	Duracion     int32   `json:"duracion"`
-	Cuposmaximos int32   `json:"cuposmaximos"`
-	Preciobase   float64 `json:"preciobase"`
-	Idtour       int32   `json:"idtour"`
+	Nombre       string `json:"nombre"`
+	Descripcion  string `json:"descripcion"`
+	Horario      string `json:"horario"`
+	Duracion     int32  `json:"duracion"`
+	Cuposmaximos int32  `json:"cuposmaximos"`
+	Preciobase   string `json:"preciobase"`
+	Idtour       int32  `json:"idtour"`
 }
 
 func (q *Queries) UpdateTour(ctx context.Context, arg UpdateTourParams) (sql.Result, error) {

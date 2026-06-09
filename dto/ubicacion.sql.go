@@ -11,7 +11,7 @@ import (
 )
 
 const createUbicacion = `-- name: CreateUbicacion :execresult
-INSERT INTO ubicacion (nombre, direccion, fechaCreacion, fechaActualizacion)
+INSERT INTO Ubicacion (nombre, direccion, fechaCreacion, fechaActualizacion)
 VALUES (?, ?, now(), now())
 `
 
@@ -25,7 +25,7 @@ func (q *Queries) CreateUbicacion(ctx context.Context, arg CreateUbicacionParams
 }
 
 const deleteUbicacion = `-- name: DeleteUbicacion :execresult
-DELETE FROM ubicacion WHERE idUbicacion = ?
+DELETE FROM Ubicacion WHERE idUbicacion = ?
 `
 
 func (q *Queries) DeleteUbicacion(ctx context.Context, idubicacion int32) (sql.Result, error) {
@@ -33,7 +33,7 @@ func (q *Queries) DeleteUbicacion(ctx context.Context, idubicacion int32) (sql.R
 }
 
 const getAllUbicacion = `-- name: GetAllUbicacion :many
-SELECT idubicacion, nombre, direccion, fechacreacion, fechaactualizacion FROM ubicacion
+SELECT idubicacion, nombre, direccion, fechacreacion, fechaactualizacion FROM Ubicacion
 `
 
 func (q *Queries) GetAllUbicacion(ctx context.Context) ([]Ubicacion, error) {
@@ -66,7 +66,7 @@ func (q *Queries) GetAllUbicacion(ctx context.Context) ([]Ubicacion, error) {
 }
 
 const getUbicacionById = `-- name: GetUbicacionById :one
-SELECT idubicacion, nombre, direccion, fechacreacion, fechaactualizacion FROM ubicacion WHERE idUbicacion = ?
+SELECT idubicacion, nombre, direccion, fechacreacion, fechaactualizacion FROM Ubicacion WHERE idUbicacion = ?
 `
 
 func (q *Queries) GetUbicacionById(ctx context.Context, idubicacion int32) (Ubicacion, error) {
@@ -83,10 +83,10 @@ func (q *Queries) GetUbicacionById(ctx context.Context, idubicacion int32) (Ubic
 }
 
 const updateUbicacion = `-- name: UpdateUbicacion :execresult
-UPDATE ubicacion
-SET nombre                = ?,
-    direccion              = ?,
-    fechaActualizacion     = now()
+UPDATE Ubicacion
+SET nombre             = ?,
+    direccion          = ?,
+    fechaActualizacion = now()
 WHERE idUbicacion = ?
 `
 
