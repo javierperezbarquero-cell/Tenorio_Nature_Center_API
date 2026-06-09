@@ -68,7 +68,7 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.GET("api/v1/estadoreserva/:id", server.getEstadoReservaById)
 	router.GET("api/v1/reserva", server.getAllReservas)
 	router.GET("api/v1/reserva/:id", server.getReservaById)
-	router.GET("api/v1/reserva/completa", server.createReservaCompleta)
+	router.POST("api/v1/reserva/completa", server.createReservaCompleta)
 	router.GET("api/v1/reserva/cliente/:idCliente")
 	router.GET("api/v1/participante", server.getAllParticipantes)
 	router.GET("api/v1/participante/:id", server.getParticipanteById)
@@ -138,7 +138,7 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	authRoutes.POST("api/v1/reserva", server.createReserva)
 	authRoutes.PUT("api/v1/reserva", server.updateReserva)
 	authRoutes.DELETE("api/v1/reserva/:id", server.deleteReserva)
-	authRoutes.POST("api/v1/reserva/completa", server.createReservaCompleta)
+	//authRoutes.POST("api/v1/reserva/completa", server.createReservaCompleta)
 	authRoutes.PUT("api/v1/reserva/completa", server.updateReservaCompleta)
 	// Participante
 	authRoutes.POST("api/v1/participante", server.createParticipante)
