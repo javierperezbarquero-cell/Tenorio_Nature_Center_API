@@ -1,19 +1,19 @@
 -- name: GetAllUbicacion :many
-SELECT * FROM ubicacion;
+SELECT * FROM Ubicacion;
 
 -- name: GetUbicacionById :one
-SELECT * FROM ubicacion WHERE idUbicacion = ?;
+SELECT * FROM Ubicacion WHERE idUbicacion = ?;
 
 -- name: CreateUbicacion :execresult
-INSERT INTO ubicacion (nombre, direccion, fechaCreacion, fechaActualizacion)
+INSERT INTO Ubicacion (nombre, direccion, fechaCreacion, fechaActualizacion)
 VALUES (?, ?, now(), now());
 
 -- name: UpdateUbicacion :execresult
-UPDATE ubicacion
-SET nombre                = ?,
-    direccion              = ?,
-    fechaActualizacion     = now()
+UPDATE Ubicacion
+SET nombre             = ?,
+    direccion          = ?,
+    fechaActualizacion = now()
 WHERE idUbicacion = ?;
 
 -- name: DeleteUbicacion :execresult
-DELETE FROM ubicacion WHERE idUbicacion = ?;
+DELETE FROM Ubicacion WHERE idUbicacion = ?;

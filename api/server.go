@@ -86,11 +86,13 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.GET("api/v1/empresacliente/:id", server.getEmpresaClienteById)
 	router.GET("api/v1/detallereserva", server.getAllDetalleReserva)
 	router.GET("api/v1/detallereserva/:id", server.getDetalleReservaById)
+	router.GET("api/v1/reserva/completa", server.getReservasCompletas)
 
 	//RUTAS CON MIDDLEWARE
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenBuilder))
 
 	//Usuario
+	authRoutes.GET("api/v1/usuario", server.getAllUsuarios)
 	authRoutes.PUT("api/v1/usuario", server.updateUsuario)
 	authRoutes.DELETE("api/v1/usuario/:id", server.deleteUsuario)
 	//Chofer
@@ -136,6 +138,8 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	authRoutes.POST("api/v1/reserva", server.createReserva)
 	authRoutes.PUT("api/v1/reserva", server.updateReserva)
 	authRoutes.DELETE("api/v1/reserva/:id", server.deleteReserva)
+	authRoutes.POST("api/v1/reserva/completa", server.createReservaCompleta)
+	authRoutes.PUT("api/v1/reserva/completa", server.updateReservaCompleta)
 	// Participante
 	authRoutes.POST("api/v1/participante", server.createParticipante)
 	authRoutes.DELETE("api/v1/participante/:id", server.deleteParticipante)
