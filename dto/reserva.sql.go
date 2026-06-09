@@ -24,6 +24,39 @@ func (q *Queries) CreateReserva(ctx context.Context, idestadoreserva int32) (sql
 	return q.db.ExecContext(ctx, createReserva, idestadoreserva)
 }
 
+const deleteDetalleReservaByReserva = `-- name: DeleteDetalleReservaByReserva :exec
+DELETE FROM DetalleReserva
+WHERE idReserva = ?
+`
+
+func (q *Queries) DeleteDetalleReservaByReserva(ctx context.Context, idreserva int32) error {
+	_, err := q.db.ExecContext(ctx, deleteDetalleReservaByReserva, idreserva)
+	return err
+}
+
+const deleteFacturaParticipanteByReserva = `-- name: DeleteFacturaParticipanteByReserva :exec
+DELETE fp
+FROM FacturaParticipante fp
+INNER JOIN Participante p
+    ON p.idParticipante = fp.idParticipante
+WHERE p.idReserva = ?
+`
+
+func (q *Queries) DeleteFacturaParticipanteByReserva(ctx context.Context, idreserva int32) error {
+	_, err := q.db.ExecContext(ctx, deleteFacturaParticipanteByReserva, idreserva)
+	return err
+}
+
+const deleteParticipantesByReserva = `-- name: DeleteParticipantesByReserva :exec
+DELETE FROM Participante
+WHERE idReserva = ?
+`
+
+func (q *Queries) DeleteParticipantesByReserva(ctx context.Context, idreserva int32) error {
+	_, err := q.db.ExecContext(ctx, deleteParticipantesByReserva, idreserva)
+	return err
+}
+
 const deleteReserva = `-- name: DeleteReserva :execresult
 DELETE FROM Reserva WHERE idReserva = ?
 `
@@ -256,6 +289,179 @@ func (q *Queries) GetReservaById(ctx context.Context, idreserva int32) (GetReser
 		&i.Nombreestado,
 	)
 	return i, err
+}
+
+const getReservasCompletas = `-- name: GetReservasCompletas :many
+SELECT
+    r.idReserva,
+    r.idEstadoReserva,
+    er.nombre AS estadoReserva,
+
+    clientes.clientes,
+
+    t.nombre AS tour,
+
+    dr.idDetalleReserva,
+    dr.idTour,
+    dr.idGuia,
+    dr.idChofer,
+    dr.idUbicacion,
+    dr.idIdioma,
+
+    dr.fechaTour,
+    dr.precioUnitario,
+
+    clientes.cantidadPersonas,
+
+    g.nombre AS guia,
+    ch.nombre AS chofer,
+    u.nombre AS ubicacion,
+    i.nombre AS idioma
+
+FROM Reserva r
+
+INNER JOIN DetalleReserva dr
+    ON dr.idReserva = r.idReserva
+
+INNER JOIN Tour t
+    ON t.idTour = dr.idTour
+
+INNER JOIN EstadoReserva er
+    ON er.idEstadoReserva = r.idEstadoReserva
+
+LEFT JOIN Guia g
+    ON g.idGuia = dr.idGuia
+
+LEFT JOIN Chofer ch
+    ON ch.idChofer = dr.idChofer
+
+LEFT JOIN Ubicacion u
+    ON u.idUbicacion = dr.idUbicacion
+
+LEFT JOIN Idioma i
+    ON i.idIdioma = dr.idIdioma
+
+INNER JOIN (
+    SELECT
+        p.idReserva,
+
+        GROUP_CONCAT(
+            DISTINCT c.nombre
+            SEPARATOR ', '
+        ) AS clientes,
+
+        COUNT(*) AS cantidadPersonas
+
+    FROM Participante p
+
+    INNER JOIN Cliente c
+        ON c.idCliente = p.idCliente
+
+    GROUP BY p.idReserva
+
+) clientes
+    ON clientes.idReserva = r.idReserva
+`
+
+type GetReservasCompletasRow struct {
+	Idreserva        int32          `json:"idreserva"`
+	Idestadoreserva  int32          `json:"idestadoreserva"`
+	Estadoreserva    string         `json:"estadoreserva"`
+	Clientes         sql.NullString `json:"clientes"`
+	Tour             string         `json:"tour"`
+	Iddetallereserva int32          `json:"iddetallereserva"`
+	Idtour           int32          `json:"idtour"`
+	Idguia           int32          `json:"idguia"`
+	Idchofer         int32          `json:"idchofer"`
+	Idubicacion      int32          `json:"idubicacion"`
+	Ididioma         int32          `json:"ididioma"`
+	Fechatour        time.Time      `json:"fechatour"`
+	Preciounitario   string         `json:"preciounitario"`
+	Cantidadpersonas int64          `json:"cantidadpersonas"`
+	Guia             sql.NullString `json:"guia"`
+	Chofer           sql.NullString `json:"chofer"`
+	Ubicacion        sql.NullString `json:"ubicacion"`
+	Idioma           sql.NullString `json:"idioma"`
+}
+
+func (q *Queries) GetReservasCompletas(ctx context.Context) ([]GetReservasCompletasRow, error) {
+	rows, err := q.db.QueryContext(ctx, getReservasCompletas)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetReservasCompletasRow
+	for rows.Next() {
+		var i GetReservasCompletasRow
+		if err := rows.Scan(
+			&i.Idreserva,
+			&i.Idestadoreserva,
+			&i.Estadoreserva,
+			&i.Clientes,
+			&i.Tour,
+			&i.Iddetallereserva,
+			&i.Idtour,
+			&i.Idguia,
+			&i.Idchofer,
+			&i.Idubicacion,
+			&i.Ididioma,
+			&i.Fechatour,
+			&i.Preciounitario,
+			&i.Cantidadpersonas,
+			&i.Guia,
+			&i.Chofer,
+			&i.Ubicacion,
+			&i.Idioma,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateDetalleReservas = `-- name: UpdateDetalleReservas :execresult
+UPDATE DetalleReserva
+SET
+    idTour = ?,
+    idGuia = ?,
+    idChofer = ?,
+    idUbicacion = ?,
+    idIdioma = ?,
+    fechaTour = ?,
+    precioUnitario = ?,
+    fechaActualizacion = NOW()
+WHERE idReserva = ?
+`
+
+type UpdateDetalleReservasParams struct {
+	Idtour         int32     `json:"idtour"`
+	Idguia         int32     `json:"idguia"`
+	Idchofer       int32     `json:"idchofer"`
+	Idubicacion    int32     `json:"idubicacion"`
+	Ididioma       int32     `json:"ididioma"`
+	Fechatour      time.Time `json:"fechatour"`
+	Preciounitario string    `json:"preciounitario"`
+	Idreserva      int32     `json:"idreserva"`
+}
+
+func (q *Queries) UpdateDetalleReservas(ctx context.Context, arg UpdateDetalleReservasParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateDetalleReservas,
+		arg.Idtour,
+		arg.Idguia,
+		arg.Idchofer,
+		arg.Idubicacion,
+		arg.Ididioma,
+		arg.Fechatour,
+		arg.Preciounitario,
+		arg.Idreserva,
+	)
 }
 
 const updateReserva = `-- name: UpdateReserva :execresult

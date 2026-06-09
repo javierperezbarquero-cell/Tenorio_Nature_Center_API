@@ -132,3 +132,102 @@ WHERE idReserva = ?;
 
 -- name: DeleteReserva :execresult
 DELETE FROM Reserva WHERE idReserva = ?;
+
+-- name: DeleteFacturaParticipanteByReserva :exec
+DELETE fp
+FROM FacturaParticipante fp
+INNER JOIN Participante p
+    ON p.idParticipante = fp.idParticipante
+WHERE p.idReserva = ?;
+
+-- name: DeleteParticipantesByReserva :exec
+DELETE FROM Participante
+WHERE idReserva = ?;
+
+-- name: DeleteDetalleReservaByReserva :exec
+DELETE FROM DetalleReserva
+WHERE idReserva = ?;
+
+-- name: GetReservasCompletas :many
+SELECT
+    r.idReserva,
+    r.idEstadoReserva,
+    er.nombre AS estadoReserva,
+
+    clientes.clientes,
+
+    t.nombre AS tour,
+
+    dr.idDetalleReserva,
+    dr.idTour,
+    dr.idGuia,
+    dr.idChofer,
+    dr.idUbicacion,
+    dr.idIdioma,
+
+    dr.fechaTour,
+    dr.precioUnitario,
+
+    clientes.cantidadPersonas,
+
+    g.nombre AS guia,
+    ch.nombre AS chofer,
+    u.nombre AS ubicacion,
+    i.nombre AS idioma
+
+FROM Reserva r
+
+INNER JOIN DetalleReserva dr
+    ON dr.idReserva = r.idReserva
+
+INNER JOIN Tour t
+    ON t.idTour = dr.idTour
+
+INNER JOIN EstadoReserva er
+    ON er.idEstadoReserva = r.idEstadoReserva
+
+LEFT JOIN Guia g
+    ON g.idGuia = dr.idGuia
+
+LEFT JOIN Chofer ch
+    ON ch.idChofer = dr.idChofer
+
+LEFT JOIN Ubicacion u
+    ON u.idUbicacion = dr.idUbicacion
+
+LEFT JOIN Idioma i
+    ON i.idIdioma = dr.idIdioma
+
+INNER JOIN (
+    SELECT
+        p.idReserva,
+
+        GROUP_CONCAT(
+            DISTINCT c.nombre
+            SEPARATOR ', '
+        ) AS clientes,
+
+        COUNT(*) AS cantidadPersonas
+
+    FROM Participante p
+
+    INNER JOIN Cliente c
+        ON c.idCliente = p.idCliente
+
+    GROUP BY p.idReserva
+
+) clientes
+    ON clientes.idReserva = r.idReserva;
+
+-- name: UpdateDetalleReservas :execresult
+UPDATE DetalleReserva
+SET
+    idTour = ?,
+    idGuia = ?,
+    idChofer = ?,
+    idUbicacion = ?,
+    idIdioma = ?,
+    fechaTour = ?,
+    precioUnitario = ?,
+    fechaActualizacion = NOW()
+WHERE idReserva = ?;
