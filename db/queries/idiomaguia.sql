@@ -1,5 +1,13 @@
 -- name: GetIdiomasByGuia :many
-SELECT ig.ididiomaguia, ig.idguia, ig.ididioma, i.nombre AS nombreIdioma
+SELECT 
+    ig.ididiomaguia, 
+    ig.idguia, 
+    ig.ididioma, 
+    i.nombre AS nombreIdioma
+FROM IdiomaGuia ig
+JOIN Idioma i ON ig.idIdioma = i.idIdioma
+WHERE ig.idGuia = ?;
+
 -- name: GetAllIdiomaGuia :many
 SELECT
     ig.idIdiomaGuia,
