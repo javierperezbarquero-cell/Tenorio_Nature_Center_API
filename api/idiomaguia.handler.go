@@ -49,7 +49,6 @@ func (server *Server) createIdiomaGuia(ctx *gin.Context) {
 		Ididioma: req.IdIdioma,
 	}
 
-	result, err := server.dbtx.CreateIdiomaGuia(ctx, args)
 	idiomaGuia, err := server.dbtx.CreateIdiomaGuia(ctx, args)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -57,7 +56,6 @@ func (server *Server) createIdiomaGuia(ctx *gin.Context) {
 	}
 
 	lastId, _ := idiomaGuia.LastInsertId()
-	lastId, _ := result.LastInsertId()
 	ctx.JSON(http.StatusOK, gin.H{"generated_id": lastId})
 }
 

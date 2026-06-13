@@ -23,12 +23,10 @@ SELECT
     GROUP_CONCAT(c.telefono ORDER BY c.nombre SEPARATOR ', ') AS clientesTelefono,
 
     -- Tour se obtiene el idReserva desde Participante
-    (SELECT t.nombre
-     FROM DetalleReserva dr
-     JOIN Tour t ON t.idTour = dr.idTour
-     WHERE dr.idReserva = p.idReserva
-     LIMIT 1) AS tourNombre,
-
+    (SELECT MAX(t.nombre)
+    FROM DetalleReserva dr
+    JOIN Tour t ON t.idTour = dr.idTour
+    WHERE dr.idReserva = p.idReserva) AS tourNombre,
     -- Estado de pago
     e.nombre AS nombreEstado
 
@@ -72,12 +70,10 @@ SELECT
     GROUP_CONCAT(c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientesNombre,
     GROUP_CONCAT(c.telefono ORDER BY c.nombre SEPARATOR ', ') AS clientesTelefono,
 
-    (SELECT t.nombre
-     FROM DetalleReserva dr
-     JOIN Tour t ON t.idTour = dr.idTour
-     WHERE dr.idReserva = p.idReserva
-     LIMIT 1) AS tourNombre,
-
+    (SELECT MAX(t.nombre)
+    FROM DetalleReserva dr
+    JOIN Tour t ON t.idTour = dr.idTour
+    WHERE dr.idReserva = p.idReserva) AS tourNombre,
     e.nombre AS nombreEstado
 
 FROM Factura f
