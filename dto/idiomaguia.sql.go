@@ -274,3 +274,49 @@ func (q *Queries) GetIdiomaGuiaByIdioma(ctx context.Context, ididioma int32) ([]
 	}
 	return items, nil
 }
+
+const getIdiomasByGuia = `-- name: GetIdiomasByGuia :many
+SELECT 
+    ig.ididiomaguia, 
+    ig.idguia, 
+    ig.ididioma, 
+    i.nombre AS nombreIdioma
+FROM IdiomaGuia ig
+JOIN Idioma i ON ig.idIdioma = i.idIdioma
+WHERE ig.idGuia = ?
+`
+
+type GetIdiomasByGuiaRow struct {
+	Ididiomaguia int32  `json:"ididiomaguia"`
+	Idguia       int32  `json:"idguia"`
+	Ididioma     int32  `json:"ididioma"`
+	Nombreidioma string `json:"nombreidioma"`
+}
+
+func (q *Queries) GetIdiomasByGuia(ctx context.Context, idguia int32) ([]GetIdiomasByGuiaRow, error) {
+	rows, err := q.db.QueryContext(ctx, getIdiomasByGuia, idguia)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetIdiomasByGuiaRow
+	for rows.Next() {
+		var i GetIdiomasByGuiaRow
+		if err := rows.Scan(
+			&i.Ididiomaguia,
+			&i.Idguia,
+			&i.Ididioma,
+			&i.Nombreidioma,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
