@@ -15,7 +15,7 @@ CREATE TABLE Cliente(
     idCliente INT AUTO_INCREMENT NOT NULL,
     idUsuario INT DEFAULT NULL,
     idEmpresaCliente INT DEFAULT NULL,
-    nombre VARCHAR(45) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
     identificador VARCHAR(25) NOT NULL,
     fechaNac DATE NOT NULL,
     telefono VARCHAR(20) NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE EmailCliente(
 
 CREATE TABLE Guia(
     idGuia INT AUTO_INCREMENT NOT NULL,
-    nombre VARCHAR(45) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
     identificador VARCHAR(25) NOT NULL,
     fechaNac DATE NOT NULL,
     telefono VARCHAR(20) NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE IdiomaGuia(
 
 CREATE TABLE Chofer(
     idChofer INT AUTO_INCREMENT NOT NULL,
-    nombre VARCHAR(45) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
     identificador VARCHAR(25) NOT NULL,
     fechaNac DATE NOT NULL,
     telefono VARCHAR(20) NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE Vehiculo(
 CREATE TABLE Ubicacion(
     idUbicacion INT AUTO_INCREMENT NOT NULL,
     nombre VARCHAR(45) NOT NULL,
-    direccion VARCHAR(150) NOT NULL,
+    direccion VARCHAR(200) NOT NULL,
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_ubicacion PRIMARY KEY(idUbicacion)
