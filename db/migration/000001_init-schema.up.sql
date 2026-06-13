@@ -105,6 +105,7 @@ CREATE TABLE Vehiculo(
     fechaCreacion DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_vehiculo PRIMARY KEY(idVehiculo),
+    CONSTRAINT uq_vehiculo_matricula UNIQUE (matricula),
     CONSTRAINT fk_vehiculo_chofer FOREIGN KEY(idChofer) REFERENCES Chofer(idChofer)
 ) ENGINE=INNODB;
 
@@ -215,6 +216,7 @@ CREATE TABLE Factura(
     fechaCreacion    DATETIME DEFAULT NULL,
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_factura PRIMARY KEY(idFactura),
+    CONSTRAINT uq_factura_numero UNIQUE (numeroFactura),
     CONSTRAINT fk_factura_estadoPago FOREIGN KEY(idEstadoPago) REFERENCES EstadoPago(idEstadoPago)
 );
 
@@ -230,7 +232,7 @@ CREATE TABLE FacturaParticipante(
     CONSTRAINT fk_fp_participante FOREIGN KEY(idParticipante) REFERENCES Participante(idParticipante)
 );
 
-CREATE TABLE usuarios( 
+CREATE TABLE Usuarios( 
     idUsuario INT AUTO_INCREMENT NOT NULL, 
     nombre VARCHAR(100) NOT NULL, 
     apellido VARCHAR(150), 
