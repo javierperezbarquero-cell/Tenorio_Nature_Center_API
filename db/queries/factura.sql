@@ -13,28 +13,21 @@ SELECT
     f.fechaCreacion,
     f.fechaActualizacion,
 
-    -- Cantidad de participantes cubiertos por esta factura
     COUNT(fp.idParticipante) AS cantidadPersonas,
 
-    -- Nombres de los clientes cubiertos (pueden ser varios)
     GROUP_CONCAT(c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientesNombre,
-
-    -- Telefonos de los clientes cubiertos
     GROUP_CONCAT(c.telefono ORDER BY c.nombre SEPARATOR ', ') AS clientesTelefono,
 
-    -- Tour se obtiene el idReserva desde Participante
-    (SELECT MAX(t.nombre)
-    FROM DetalleReserva dr
-    JOIN Tour t ON t.idTour = dr.idTour
-    WHERE dr.idReserva = p.idReserva) AS tourNombre,
-    -- Estado de pago
+    MAX(t.nombre) AS tourNombre,
     e.nombre AS nombreEstado
 
 FROM Factura f
 JOIN FacturaParticipante fp ON fp.idFactura     = f.idFactura
-JOIN Participante        p  ON p.idParticipante  = fp.idParticipante
-JOIN Cliente             c  ON c.idCliente       = p.idCliente
-JOIN EstadoPago          e  ON e.idEstadoPago    = f.idEstadoPago
+JOIN Participante        p  ON p.idParticipante = fp.idParticipante
+JOIN Cliente             c  ON c.idCliente      = p.idCliente
+JOIN EstadoPago          e  ON e.idEstadoPago   = f.idEstadoPago
+JOIN DetalleReserva      dr ON dr.idReserva     = p.idReserva
+JOIN Tour                t  ON t.idTour         = dr.idTour
 GROUP BY
     f.idFactura,
     f.numeroFactura,
@@ -49,6 +42,7 @@ GROUP BY
     f.fechaCreacion,
     f.fechaActualizacion,
     e.nombre;
+
 
 
 -- name: GetFacturaById :one
@@ -70,17 +64,16 @@ SELECT
     GROUP_CONCAT(c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientesNombre,
     GROUP_CONCAT(c.telefono ORDER BY c.nombre SEPARATOR ', ') AS clientesTelefono,
 
-    (SELECT MAX(t.nombre)
-    FROM DetalleReserva dr
-    JOIN Tour t ON t.idTour = dr.idTour
-    WHERE dr.idReserva = p.idReserva) AS tourNombre,
+    MAX(t.nombre) AS tourNombre,
     e.nombre AS nombreEstado
 
 FROM Factura f
 JOIN FacturaParticipante fp ON fp.idFactura     = f.idFactura
-JOIN Participante        p  ON p.idParticipante  = fp.idParticipante
-JOIN Cliente             c  ON c.idCliente       = p.idCliente
-JOIN EstadoPago          e  ON e.idEstadoPago    = f.idEstadoPago
+JOIN Participante        p  ON p.idParticipante = fp.idParticipante
+JOIN Cliente             c  ON c.idCliente      = p.idCliente
+JOIN EstadoPago          e  ON e.idEstadoPago   = f.idEstadoPago
+JOIN DetalleReserva      dr ON dr.idReserva     = p.idReserva
+JOIN Tour                t  ON t.idTour         = dr.idTour
 WHERE f.idFactura = ?
 GROUP BY
     f.idFactura,
@@ -96,6 +89,7 @@ GROUP BY
     f.fechaCreacion,
     f.fechaActualizacion,
     e.nombre;
+
 
 -- name: GetReservasDisponiblesParaFacturar :many
 SELECT
@@ -158,4 +152,4 @@ WHERE idFactura = ?;
 
 
 -- name: DeleteFactura :execresult
-DELETE FROM Factura WHERE idFactura = ?;
+DELETE FROM Factura WHERE idFactura = ?
