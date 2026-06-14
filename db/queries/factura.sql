@@ -97,16 +97,19 @@ SELECT
     r.idEstadoReserva,
     r.fechaCreacion,
     r.fechaActualizacion,
+    dr.precioUnitario,
     GROUP_CONCAT(DISTINCT c.nombre ORDER BY c.nombre SEPARATOR ', ') AS clientenombres
 FROM Reserva r
 JOIN Participante p ON p.idReserva = r.idReserva
 JOIN Cliente c ON c.idCliente = p.idCliente
+JOIN DetalleReserva dr ON dr.idReserva = r.idReserva
 LEFT JOIN FacturaParticipante fp ON fp.idParticipante = p.idParticipante
 GROUP BY
     r.idReserva,
     r.idEstadoReserva,
     r.fechaCreacion,
-    r.fechaActualizacion
+    r.fechaActualizacion,
+    dr.precioUnitario
 HAVING SUM(CASE WHEN fp.idParticipante IS NULL THEN 1 ELSE 0 END) > 0;
 
 -- name: GetParticiapntesSinFactura :many
