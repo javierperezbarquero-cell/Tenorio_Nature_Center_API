@@ -10,6 +10,21 @@ CREATE TABLE EmpresaCliente(
     CONSTRAINT uq_empresa_cedulaJuridica UNIQUE(cedulaJuridica)
 ) ENGINE=INNODB;
 
+CREATE TABLE Usuarios( 
+    idUsuario INT AUTO_INCREMENT NOT NULL, 
+    nombre VARCHAR(100) NOT NULL, 
+    apellido VARCHAR(150), 
+    rol VARCHAR(30), 
+    correo VARCHAR(150) NOT NULL, 
+    contrasena VARCHAR(255) NOT NULL, 
+    descripcion TEXT, 
+    imagen VARCHAR(255), 
+    fechaCreacion DATETIME DEFAULT NULL, 
+    fechaActualizacion DATETIME DEFAULT NULL, 
+    tokenRecordar VARCHAR(255), 
+    CONSTRAINT pk_usuarios PRIMARY KEY(idUsuario), 
+    CONSTRAINT uq_usuarios_correo UNIQUE(correo)
+) ENGINE=INNODB;
 
 CREATE TABLE Cliente(
     idCliente INT AUTO_INCREMENT NOT NULL,
@@ -217,8 +232,10 @@ CREATE TABLE Factura(
     fechaActualizacion DATETIME DEFAULT NULL,
     CONSTRAINT pk_factura PRIMARY KEY(idFactura),
     CONSTRAINT uq_factura_numero UNIQUE (numeroFactura),
-    CONSTRAINT fk_factura_estadoPago FOREIGN KEY(idEstadoPago) REFERENCES EstadoPago(idEstadoPago)
-);
+    CONSTRAINT fk_factura_estadoPago FOREIGN KEY(idEstadoPago) REFERENCES EstadoPago(idEstadoPago),
+    CONSTRAINT chk_factura_moneda 
+    CHECK (moneda IN ('CRC', 'USD', 'EUR'))
+) ENGINE=INNODB;
 
 CREATE TABLE FacturaParticipante(
     idFacturaParticipante INT AUTO_INCREMENT NOT NULL,
@@ -230,20 +247,4 @@ CREATE TABLE FacturaParticipante(
     CONSTRAINT uq_facturaParticipante UNIQUE(idParticipante),
     CONSTRAINT fk_fp_factura      FOREIGN KEY(idFactura)      REFERENCES Factura(idFactura),
     CONSTRAINT fk_fp_participante FOREIGN KEY(idParticipante) REFERENCES Participante(idParticipante)
-);
-
-CREATE TABLE Usuarios( 
-    idUsuario INT AUTO_INCREMENT NOT NULL, 
-    nombre VARCHAR(100) NOT NULL, 
-    apellido VARCHAR(150), 
-    rol VARCHAR(30), 
-    correo VARCHAR(150) NOT NULL, 
-    contrasena VARCHAR(255) NOT NULL, 
-    descripcion TEXT, 
-    imagen VARCHAR(255), 
-    fechaCreacion DATETIME DEFAULT NULL, 
-    fechaActualizacion DATETIME DEFAULT NULL, 
-    tokenRecordar VARCHAR(255), 
-    CONSTRAINT pk_usuarios PRIMARY KEY(idUsuario), 
-    CONSTRAINT uq_usuarios_correo UNIQUE(correo) 
 ) ENGINE=INNODB;

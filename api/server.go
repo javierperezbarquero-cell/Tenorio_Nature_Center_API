@@ -60,6 +60,7 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	router.GET("api/v1/idioma/:id", server.getIdiomaById)
 	router.GET("api/v1/emailcliente", server.getAllEmailCliente)
 	router.GET("api/v1/emailcliente/:id", server.getEmailClienteById)
+	router.GET("api/v1/emailcliente/cliente/:id", server.getEmailClienteByCliente)
 	router.GET("api/v1/idiomaguia", server.getAllIdiomaGuia)
 	router.GET("api/v1/idiomaguia/idioma/:id", server.getIdiomaGuiaByIdioma)
 	router.GET("api/v1/idiomaguia/guia/:id", server.getIdiomaGuiaByGuia)

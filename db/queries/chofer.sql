@@ -1,15 +1,15 @@
 -- name: GetAllChofer :many
-SELECT * FROM chofer;
+SELECT * FROM Chofer;
 
 -- name: GetChoferById :one
-SELECT * FROM chofer WHERE idChofer = ?;
+SELECT * FROM Chofer WHERE idChofer = ?;
 
 -- name: CreateChofer :execresult
-INSERT INTO chofer (nombre, identificador, fechaNac, telefono, email, tipoLicencia, nacionalidad, fechaCreacion, fechaActualizacion)
+INSERT INTO Chofer (nombre, identificador, fechaNac, telefono, email, tipoLicencia, nacionalidad, fechaCreacion, fechaActualizacion)
 VALUES (?, ?, ?, ?, ?, ?, ?, now(), now());
 
 -- name: UpdateChofer :execresult
-UPDATE chofer 
+UPDATE Chofer 
 SET nombre = ?, 
     identificador = ?,
     fechaNac = ?, 
@@ -21,4 +21,4 @@ SET nombre = ?,
 WHERE idChofer = ?;
 
 -- name: DeleteChofer :execresult
-DELETE FROM chofer WHERE idChofer = ?;
+DELETE FROM Chofer WHERE idChofer = ?;
