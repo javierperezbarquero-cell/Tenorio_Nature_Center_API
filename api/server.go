@@ -1,27 +1,30 @@
 package api
 
 import (
+	"database/sql"
 	"rest/dto"
 	"rest/security"
 	"time"
-
+	
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
 )
 
 type Server struct {
 	dbtx         *dto.Queries
+	db           *sql.DB
 	router       *gin.Engine
 	tokenBuilder security.Builder
 }
 
-func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
+func NewServer(db *sql.DB, dbtx *dto.Queries, secret string) (*Server, error) {
 	builder, err := security.NewPasetoBuilder(secret)
 	if err != nil {
 		return nil, err
 	}
 	server := &Server{
 		dbtx:         dbtx,
+		db:           db,
 		tokenBuilder: builder,
 	}
 	router := gin.Default()
@@ -39,6 +42,7 @@ func NewServer(dbtx *dto.Queries, secret string) (*Server, error) {
 	//Login y registro
 	router.POST("api/v1/usuario/login", server.login)
 	router.POST("api/v1/usuario", server.createUsuario)
+	router.POST("api/v1/registro-cliente", server.registrarCliente)
 	//Manejo de imágenes de usuario
 	router.POST("api/v1/usuario/upload", server.uploadUserImg)
 	router.GET("api/v1/usuario/download/:filename", server.downloadUserImg)

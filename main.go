@@ -20,7 +20,7 @@ func main() {
 		log.Fatal("Error, no se pudo conectar a la base de datos", err)
 	}
 	dbtx := dto.New(conn)
-	server, err := api.NewServer(dbtx, config.Secret)
+	server, err := api.NewServer(conn, dbtx, config.Secret)
 	if err != nil {
 		log.Fatal("No se puede iniciar el servidor", err)
 	}

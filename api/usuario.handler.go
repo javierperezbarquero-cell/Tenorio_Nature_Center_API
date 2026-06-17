@@ -236,11 +236,11 @@ func (server *Server) downloadUserImg(ctx *gin.Context) {
 }
 
 func (server *Server) getAllUsuarios(ctx *gin.Context) {
-    usuarios, err := server.dbtx.GetAllUsuarios(ctx)
-    if err != nil {
-        fmt.Println("ERROR GET ALL USUARIOS:", err)
-        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-        return
-    }
-    ctx.JSON(http.StatusOK, usuarios)
+	usuarios, err := server.dbtx.GetAllUsuarios(ctx)
+	if err != nil {
+		fmt.Println("ERROR GET ALL USUARIOS:", err)
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, usuarios)
 }
