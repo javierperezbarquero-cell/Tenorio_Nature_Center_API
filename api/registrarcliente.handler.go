@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type registrarClienteRequest struct {
@@ -41,12 +40,6 @@ func (server *Server) registrarCliente(ctx *gin.Context) {
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(req.Contrasena), bcrypt.DefaultCost)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
 	var idUsuarioGenerado int64
 
 	err = server.ExecTx(ctx, func(q *dto.Queries) error {
@@ -56,7 +49,7 @@ func (server *Server) registrarCliente(ctx *gin.Context) {
 			Apellido:   sql.NullString{String: req.Apellido, Valid: true},
 			Rol:        sql.NullString{String: "Cliente", Valid: true},
 			Correo:     req.Correo,
-			Contrasena: string(hash),
+			Contrasena: req.Contrasena,
 		})
 		if err != nil {
 			return err
